@@ -16,4 +16,4 @@ MonoBehaviour:
   damage: 20
   attackRate: 1
   icon: {fileID: 0}
-  weaponPrefab: {fileID: 5097439217849873736, guid: 868f691f995e38f45a22dd125b3a3dc0, type: 3}
+  weaponPrefab: {fileID: 866362395711687481, guid: 752b43ee43d90be4b98476e0c8a6b65c, type: 3}

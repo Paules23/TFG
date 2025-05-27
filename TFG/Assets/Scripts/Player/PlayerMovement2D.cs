@@ -5,6 +5,7 @@ public class PlayerMovement2D : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float jumpForce = 7f;
+    public bool canFlip = true;
 
     private Rigidbody2D rb;
     private bool isGrounded;
@@ -31,15 +32,19 @@ public class PlayerMovement2D : MonoBehaviour
     {
         float moveInput = Input.GetAxisRaw("Horizontal");
 
-        if (moveInput > 0) FacingRight = true;
-        else if (moveInput < 0) FacingRight = false;
-
+        // Movimiento
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
-        // Flip visual
-        Vector3 scale = transform.localScale;
-        scale.x = FacingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
-        transform.localScale = scale;
+        // Flip visual solo si está permitido
+        if (canFlip)
+        {
+            if (moveInput > 0) FacingRight = true;
+            else if (moveInput < 0) FacingRight = false;
+
+            Vector3 scale = transform.localScale;
+            scale.x = FacingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+            transform.localScale = scale;
+        }
     }
 
     void Jump()
@@ -52,7 +57,6 @@ public class PlayerMovement2D : MonoBehaviour
         }
     }
 
-    // Visualización del círculo de ground check
     void OnDrawGizmosSelected()
     {
         if (groundCheck != null)
