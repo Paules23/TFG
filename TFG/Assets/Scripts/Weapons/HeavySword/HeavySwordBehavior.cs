@@ -14,6 +14,9 @@ public class HeavySwordBehaviour : MonoBehaviour
     private Vector2 attackDirection = Vector2.right;
     private HashSet<Collider2D> alreadyHitTargets = new HashSet<Collider2D>();
 
+    [Header("Swing Acceleration")]
+    public AnimationCurve swingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     public void Attack(bool facingRight)
     {
         if (!isAttacking)
@@ -26,22 +29,29 @@ public class HeavySwordBehaviour : MonoBehaviour
     private IEnumerator AttackCoroutine()
     {
         isAttacking = true;
-        alreadyHitTargets.Clear(); // 👈 Limpiamos objetivos anteriores
+        alreadyHitTargets.Clear();
 
         float elapsed = 0f;
-        float startAngle = attackDirection == Vector2.right ? 0f : 0f;
-        float endAngle = attackDirection == Vector2.right ? -180f : -180f;
+
+        float startAngle = 0f;
+        float endAngle = -180f;
 
         while (elapsed < attackDuration)
         {
             float t = elapsed / attackDuration;
-            float angle = Mathf.Lerp(startAngle, endAngle, t);
+            float curveT = swingCurve.Evaluate(t);
+
+            // Interpolamos desde 0 al ángulo deseado (positivo o negativo según dirección)
+            float angle = Mathf.Lerp(startAngle, endAngle, curveT);
             transform.localRotation = Quaternion.Euler(0f, 0f, angle);
-            DetectHits(); // 💥 Detectar colisiones en cada frame
+
+            DetectHits();
+
             elapsed += Time.deltaTime;
             yield return null;
         }
 
+        // Restablecer rotación al final del golpe
         transform.localRotation = Quaternion.identity;
         isAttacking = false;
     }

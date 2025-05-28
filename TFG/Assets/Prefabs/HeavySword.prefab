@@ -194,6 +194,66 @@ MonoBehaviour:
     m_Bits: 128
   hitboxRadius: 0.5
   hitboxPoint: {fileID: 2756514348245208478}
+  swingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.10153044
+      value: 0.03962027
+      inSlope: 0.2652123
+      outSlope: 0.2652123
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.20762378
+      value: 0.14270234
+      inSlope: 1.0020753
+      outSlope: 1.0020753
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.22856435
+    - serializedVersion: 3
+      time: 0.30843252
+      value: 0.21646047
+      inSlope: 0.21176226
+      outSlope: 0.21176226
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.15357791
+    - serializedVersion: 3
+      time: 0.61440855
+      value: 0.99814075
+      inSlope: -0.802872
+      outSlope: -0.802872
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.10804385
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1412328057869562370
 GameObject:
   m_ObjectHideFlags: 0

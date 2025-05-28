@@ -1,11 +1,6 @@
-// CameraBoundsController.cs
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Mueve la cámara en saltos discretos cuando el jugador toca los límites definidos,
-/// dejando al jugador en el primer tercio o último tercio de la pantalla, y mantiene la cámara fija hasta el siguiente límite.
-/// </summary>
 [RequireComponent(typeof(Camera))]
 public class CameraBoundsController : MonoBehaviour
 {
@@ -13,15 +8,18 @@ public class CameraBoundsController : MonoBehaviour
     public Transform player;
     private Camera cam;
 
-    [Header("Bounds Settings")]
-    [Tooltip("Viewport X threshold to trigger right movement (0 to 1)")]
-    [Range(0f, 1f)] public float rightThreshold = 0.66f;
-    [Tooltip("Viewport X threshold to trigger left movement (0 to 1)")]
+    [Header("Thresholds (Viewport)")]
     [Range(0f, 1f)] public float leftThreshold = 0.33f;
-    [Tooltip("Speed for camera Lerp movement between positions")]
+    [Range(0f, 1f)] public float rightThreshold = 0.66f;
+    [Range(0f, 1f)] public float bottomThreshold = 0.33f;
+    [Range(0f, 1f)] public float topThreshold = 0.66f;
+
+    [Header("Lerp Settings")]
+    [Tooltip("Velocidad de desplazamiento de cámara")]
     public float moveSpeed = 5f;
 
     private float halfWidth;
+    private float halfHeight;
     private bool isMoving = false;
     private Vector3 targetPosition;
 
@@ -30,6 +28,8 @@ public class CameraBoundsController : MonoBehaviour
         cam = GetComponent<Camera>();
         if (!cam.orthographic)
             Debug.LogWarning("CameraBoundsController está diseñado para cámara ortográfica.");
+
+        halfHeight = cam.orthographicSize;
         halfWidth = cam.orthographicSize * cam.aspect;
         targetPosition = transform.position;
     }
@@ -38,21 +38,47 @@ public class CameraBoundsController : MonoBehaviour
     {
         if (player == null || isMoving) return;
 
-        // Calcula posición del jugador en viewport
-        Vector3 viewportPos = cam.WorldToViewportPoint(player.position);
+        // Calcula la posición en viewport (0..1)
+        Vector3 vp = cam.WorldToViewportPoint(player.position);
 
-        if (viewportPos.x > rightThreshold)
+        bool needMove = false;
+        Vector3 newCamPos = transform.position;
+
+        // HORIZONTAL
+        if (vp.x > rightThreshold)
         {
-            // Saltar cámara a la derecha: jugador quedará en leftThreshold
-            float worldOffset = (viewportPos.x - leftThreshold) * 2f * halfWidth;
-            targetPosition = transform.position + new Vector3(worldOffset, 0f, 0f);
-            StartCoroutine(MoveCamera());
+            // Llevamos al jugador al tercio izquierdo (leftThreshold)
+            float desiredCamX = player.position.x - (leftThreshold - 0.5f) * 2f * halfWidth;
+            newCamPos.x = desiredCamX;
+            needMove = true;
         }
-        else if (viewportPos.x < leftThreshold)
+        else if (vp.x < leftThreshold)
         {
-            // Saltar cámara a la izquierda: jugador quedará en rightThreshold
-            float worldOffset = (viewportPos.x - rightThreshold) * 2f * halfWidth;
-            targetPosition = transform.position + new Vector3(worldOffset, 0f, 0f);
+            // Llevamos al jugador al tercio derecho (rightThreshold)
+            float desiredCamX = player.position.x - (rightThreshold - 0.5f) * 2f * halfWidth;
+            newCamPos.x = desiredCamX;
+            needMove = true;
+        }
+
+        // VERTICAL
+        if (vp.y > topThreshold)
+        {
+            // Llevamos al jugador al tercio inferior (bottomThreshold)
+            float desiredCamY = player.position.y - (bottomThreshold - 0.5f) * 2f * halfHeight;
+            newCamPos.y = desiredCamY;
+            needMove = true;
+        }
+        else if (vp.y < bottomThreshold)
+        {
+            // Llevamos al jugador al tercio superior (topThreshold)
+            float desiredCamY = player.position.y - (topThreshold - 0.5f) * 2f * halfHeight;
+            newCamPos.y = desiredCamY;
+            needMove = true;
+        }
+
+        if (needMove)
+        {
+            targetPosition = newCamPos;
             StartCoroutine(MoveCamera());
         }
     }
@@ -61,15 +87,16 @@ public class CameraBoundsController : MonoBehaviour
     {
         isMoving = true;
         Vector3 startPos = transform.position;
-        float elapsed = 0f;
-        float duration = Mathf.Abs(targetPosition.x - startPos.x) / (moveSpeed * halfWidth * 2f);
-        duration = Mathf.Max(0.1f, duration);
+        float distance = Vector3.Distance(startPos, targetPosition);
+        float duration = distance / (moveSpeed * Mathf.Max(halfWidth, halfHeight));
+        duration = Mathf.Max(0.05f, duration);
 
+        float elapsed = 0f;
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.position = Vector3.Lerp(startPos, targetPosition, Mathf.SmoothStep(0f, 1f, t));
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            transform.position = Vector3.Lerp(startPos, targetPosition, t);
             yield return null;
         }
 
