@@ -1,3 +1,4 @@
+// DestructibleObject.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,10 +26,7 @@ public class DestructibleObject : MonoBehaviour, IDamageable
     public void TakeDamage(float amount)
     {
         if (isDying) return;
-
         health -= amount;
-
-        // Siempre ejecutar flash suave en cada golpe
         StartCoroutine(SmoothFlashEffect());
 
         if (health <= 0f)
@@ -49,12 +47,11 @@ public class DestructibleObject : MonoBehaviour, IDamageable
 
         float elapsed = 0f;
 
-        // Crecer y flash a blanco
+        // Grow and flash to white
         while (elapsed < flashDuration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsed / flashDuration);
-
             sr.color = Color.Lerp(originalColor, Color.white, t);
             transform.localScale = Vector3.Lerp(originalScale, targetScale, t);
             yield return null;
@@ -62,12 +59,11 @@ public class DestructibleObject : MonoBehaviour, IDamageable
 
         elapsed = 0f;
 
-        // Volver a tamaño y color original
+        // Shrink back and restore color
         while (elapsed < flashDuration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.SmoothStep(0f, 1f, elapsed / flashDuration);
-
             sr.color = Color.Lerp(Color.white, originalColor, t);
             transform.localScale = Vector3.Lerp(targetScale, originalScale, t);
             yield return null;
@@ -76,13 +72,17 @@ public class DestructibleObject : MonoBehaviour, IDamageable
 
     private IEnumerator ExplodeAfterFlash()
     {
-        // Ejecutar flash suave antes de explotar
+        // Trigger camera shake immediately before flash animation
+        if (CameraShake.Instance != null)
+        {
+            CameraShake.Instance.Shake();
+        }
+
+        // Play smooth flash effect
         yield return SmoothFlashEffect();
 
-        // Generar fragmentos inmediatamente
+        // Spawn fragments and destroy without delay
         SpawnFragments();
-
-        // Destruir objeto sin delay
         Destroy(gameObject);
     }
 
@@ -102,13 +102,13 @@ public class DestructibleObject : MonoBehaviour, IDamageable
 
             GameObject fragment = Instantiate(lootFragmentPrefab, spawnPos, Quaternion.identity);
 
-            var fragRenderer = fragment.GetComponent<SpriteRenderer>();
+            SpriteRenderer fragRenderer = fragment.GetComponent<SpriteRenderer>();
             if (fragRenderer != null)
                 fragRenderer.color = fragmentColor;
 
             fragment.transform.rotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
 
-            var rb = fragment.GetComponent<Rigidbody2D>();
+            Rigidbody2D rb = fragment.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
                 rb.gravityScale = fragmentGravityScale;

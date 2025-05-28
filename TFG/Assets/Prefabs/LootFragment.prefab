@@ -174,5 +174,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attractionSpeed: 3.5
   acceleration: 10
-  attractionRange: 2
+  attractionRange: 3
   playerTag: Player
