@@ -3,9 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class LootFragment : MonoBehaviour
 {
-    public float attractionSpeed = 5f;
+    public float attractionSpeed = 3.5f;
     public float acceleration = 10f;
-    public float attractionRange = 5f;
+    public float attractionRange = 3f;
     public string playerTag = "Player";
 
     private Transform player;

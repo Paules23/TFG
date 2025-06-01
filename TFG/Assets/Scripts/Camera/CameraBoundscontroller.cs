@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
@@ -8,18 +8,25 @@ public class CameraBoundsController : MonoBehaviour
     public Transform player;
     private Camera cam;
 
-    [Header("Thresholds (Viewport)")]
+    [Header("Thresholds (as fraction of screen)")]
     [Range(0f, 1f)] public float leftThreshold = 0.33f;
     [Range(0f, 1f)] public float rightThreshold = 0.66f;
     [Range(0f, 1f)] public float bottomThreshold = 0.33f;
     [Range(0f, 1f)] public float topThreshold = 0.66f;
 
     [Header("Lerp Settings")]
-    [Tooltip("Velocidad de desplazamiento de c�mara")]
+    [Tooltip("Velocidad de desplazamiento de cámara")]
     public float moveSpeed = 5f;
 
     private float halfWidth;
     private float halfHeight;
+    private float screenWidth;   // = 2 * halfWidth
+    private float screenHeight;  // = 2 * halfHeight
+
+    private Vector3 originPos;   // posición inicial fija de la cámara
+    private int camXIndex = 0;   // índice horizontal de “pantalla”
+    private int camYIndex = 0;   // índice vertical de “pantalla”
+
     private bool isMoving = false;
     private Vector3 targetPosition;
 
@@ -27,58 +34,70 @@ public class CameraBoundsController : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         if (!cam.orthographic)
-            Debug.LogWarning("CameraBoundsController est� dise�ado para c�mara ortogr�fica.");
+            Debug.LogWarning("CameraBoundsController está diseñado para cámara ortográfica.");
 
         halfHeight = cam.orthographicSize;
         halfWidth = cam.orthographicSize * cam.aspect;
-        targetPosition = transform.position;
+        screenWidth = halfWidth * 2f;
+        screenHeight = halfHeight * 2f;
+
+        originPos = transform.position;   // fijamos la posición “0,0” de la grilla
+        camXIndex = 0;
+        camYIndex = 0;
+        targetPosition = originPos;
     }
 
     void LateUpdate()
     {
         if (player == null || isMoving) return;
 
-        // Calcula la posici�n en viewport (0..1)
-        Vector3 vp = cam.WorldToViewportPoint(player.position);
+        // Calcula coordenadas relativas del jugador respecto al origen fijo
+        Vector3 playerWorld = player.position;
+        float relX = playerWorld.x - originPos.x;
+        float relY = playerWorld.y - originPos.y;
 
-        bool needMove = false;
-        Vector3 newCamPos = transform.position;
+        bool moved = false;
+        int newXIndex = camXIndex;
+        int newYIndex = camYIndex;
 
-        // HORIZONTAL
-        if (vp.x > rightThreshold)
+        // Si cruza el umbral derecho:
+        float rightWorldBorder = (camXIndex + rightThreshold - 0.5f) * screenWidth;
+        float leftWorldBorder = (camXIndex + leftThreshold - 0.5f) * screenWidth;
+        if (relX > rightWorldBorder)
         {
-            // Llevamos al jugador al tercio izquierdo (leftThreshold)
-            float desiredCamX = player.position.x - (leftThreshold - 0.5f) * 2f * halfWidth;
-            newCamPos.x = desiredCamX;
-            needMove = true;
+            newXIndex = camXIndex + 1;
+            moved = true;
         }
-        else if (vp.x < leftThreshold)
+        else if (relX < leftWorldBorder)
         {
-            // Llevamos al jugador al tercio derecho (rightThreshold)
-            float desiredCamX = player.position.x - (rightThreshold - 0.5f) * 2f * halfWidth;
-            newCamPos.x = desiredCamX;
-            needMove = true;
-        }
-
-        // VERTICAL
-        if (vp.y > topThreshold)
-        {
-            // Llevamos al jugador al tercio inferior (bottomThreshold)
-            float desiredCamY = player.position.y - (bottomThreshold - 0.5f) * 2f * halfHeight;
-            newCamPos.y = desiredCamY;
-            needMove = true;
-        }
-        else if (vp.y < bottomThreshold)
-        {
-            // Llevamos al jugador al tercio superior (topThreshold)
-            float desiredCamY = player.position.y - (topThreshold - 0.5f) * 2f * halfHeight;
-            newCamPos.y = desiredCamY;
-            needMove = true;
+            newXIndex = camXIndex - 1;
+            moved = true;
         }
 
-        if (needMove)
+        // Si cruza el umbral superior:
+        float topWorldBorder = (camYIndex + topThreshold - 0.5f) * screenHeight;
+        float bottomWorldBorder = (camYIndex + bottomThreshold - 0.5f) * screenHeight;
+        if (relY > topWorldBorder)
         {
-            targetPosition = newCamPos;
+            newYIndex = camYIndex + 1;
+            moved = true;
+        }
+        else if (relY < bottomWorldBorder)
+        {
+            newYIndex = camYIndex - 1;
+            moved = true;
+        }
+
+        if (moved)
+        {
+            camXIndex = newXIndex;
+            camYIndex = newYIndex;
+            // Nueva posición = origin + (índices * tamaño de pantalla)
+            targetPosition = new Vector3(
+                originPos.x + camXIndex * screenWidth,
+                originPos.y + camYIndex * screenHeight,
+                originPos.z
+            );
             StartCoroutine(MoveCamera());
         }
     }
@@ -88,7 +107,9 @@ public class CameraBoundsController : MonoBehaviour
         isMoving = true;
         Vector3 startPos = transform.position;
         float distance = Vector3.Distance(startPos, targetPosition);
-        float duration = distance / (moveSpeed * Mathf.Max(halfWidth, halfHeight));
+        // Normalizamos duración con referencia a screenWidth/screenHeight
+        float refSize = Mathf.Max(screenWidth, screenHeight);
+        float duration = distance / (moveSpeed * refSize);
         duration = Mathf.Max(0.05f, duration);
 
         float elapsed = 0f;
