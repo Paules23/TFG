@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public Transform weaponPivot; // Asignar el objeto SwordPivot en el Inspector
+    public Transform weaponPivot; 
 
     private WeaponData currentWeaponData;
-    private HeavySwordBehaviour currentWeapon;
+    private MonoBehaviour currentWeapon; 
     private PlayerMovement2D movement;
     private PlayerInventory inventory;
 
@@ -14,22 +14,29 @@ public class PlayerAttack : MonoBehaviour
         movement = GetComponent<PlayerMovement2D>();
         inventory = GetComponent<PlayerInventory>();
         EquipWeapon(inventory.equippedWeapon);
-        
     }
 
     void Update()
     {
         TryAttack();
-        if (Input.GetKeyDown(KeyCode.Alpha1)) inventory.EquipWeaponByIndex(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) inventory.EquipWeaponByIndex(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) inventory.EquipWeaponByIndex(2);
+
+        if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeaponByIndex(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) EquipWeaponByIndex(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) EquipWeaponByIndex(2);
     }
 
     void TryAttack()
     {
         if (Input.GetKeyDown(KeyCode.Space) && currentWeapon != null)
         {
-            currentWeapon.Attack(movement.FacingRight);
+            if (currentWeapon is SpearBehaviour spear)
+            {
+                spear.Attack(movement.FacingRight);
+            }
+            else if (currentWeapon is HeavySwordBehaviour sword)
+            {
+                sword.Attack(movement.FacingRight);
+            }
         }
     }
 
@@ -43,8 +50,15 @@ public class PlayerAttack : MonoBehaviour
         currentWeaponData = weaponData;
 
         GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPivot);
-        weaponInstance.transform.localPosition = Vector3.zero;
+        weaponInstance.transform.localPosition = weaponData.localPosition;
+        weaponInstance.transform.localRotation = Quaternion.Euler(weaponData.localRotationEuler);
 
-        currentWeapon = weaponInstance.GetComponent<HeavySwordBehaviour>();
+        currentWeapon = weaponInstance.GetComponent<MonoBehaviour>();
+    }
+
+    private void EquipWeaponByIndex(int index)
+    {
+        inventory.EquipWeaponByIndex(index);
+        EquipWeapon(inventory.equippedWeapon);
     }
 }

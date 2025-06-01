@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2029905991914442066}
   - component: {fileID: 8749866804104763417}
   - component: {fileID: 3571996354769537310}
-  m_Layer: 7
+  m_Layer: 9
   m_Name: Destructible (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2029905991914442066
 SpriteRenderer:
@@ -116,7 +116,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 30
+  health: 15
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
   fragmentCount: 10
   fragmentSpreadAngle: -60

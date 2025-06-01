@@ -13,9 +13,17 @@ public class HeavySwordBehaviour : MonoBehaviour
     private bool isAttacking = false;
     private Vector2 attackDirection = Vector2.right;
     private HashSet<Collider2D> alreadyHitTargets = new HashSet<Collider2D>();
+    private Quaternion defaultRotation;
 
-    [Header("Swing Acceleration")]
+    [Header("Swing Acceleration and angle")]
     public AnimationCurve swingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public float startAngle ;
+    public float endAngle;
+
+    void Start()
+    {
+        defaultRotation = transform.localRotation;
+    }
 
     public void Attack(bool facingRight)
     {
@@ -33,9 +41,6 @@ public class HeavySwordBehaviour : MonoBehaviour
 
         float elapsed = 0f;
 
-        float startAngle = 0f;
-        float endAngle = -180f;
-
         while (elapsed < attackDuration)
         {
             float t = elapsed / attackDuration;
@@ -52,7 +57,7 @@ public class HeavySwordBehaviour : MonoBehaviour
         }
 
         // Restablecer rotación al final del golpe
-        transform.localRotation = Quaternion.identity;
+        transform.localRotation = defaultRotation;
         isAttacking = false;
     }
 

@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f7f70f709d47345b66b61a113b801c, type: 3}
   m_Name: HeavySword
   m_EditorClassIdentifier: 
+  localPosition: {x: 0, y: 0, z: 0}
+  localRotationEuler: {x: 0, y: 0, z: 100}
   weaponName: HeavySword
   damage: 20
   attackRate: 1

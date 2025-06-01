@@ -20,6 +20,7 @@ public class PlayerInventory : MonoBehaviour
     {
         if (index >= 0 && index < weapons.Count)
         {
+            Debug.Log("Indice de arma: " + index);
             EquipWeapon(weapons[index]);
         }
     }

@@ -10,10 +10,10 @@ public class DestructibleObject : MonoBehaviour, IDamageable
 
     [Header("Fragment Settings")]
     public GameObject lootFragmentPrefab;
-    public int fragmentCount = 5;
-    public float fragmentSpreadAngle = 60f;
-    public float fragmentMinForce = 1f;
-    public float fragmentMaxForce = 2.5f;
+    public int fragmentCount = 10;
+    public float fragmentSpreadAngle = -60f;
+    public float fragmentMinForce = 0.5f;
+    public float fragmentMaxForce = 2.0f;
     public float fragmentGravityScale = 1.5f;
     public float objectScaleBeforeDie = 1.5f;
 

@@ -185,11 +185,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5284d500d191934ab63fef1ffbf0f41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackDuration: 0.3
+  attackDuration: 0.6
   heavyDamageAmount: 15
   hittableLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 640
   hitboxRadius: 0.5
   hitboxPoint: {fileID: 2756514348245208478}
   swingCurve:
@@ -252,6 +252,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  startAngle: 100
+  endAngle: -100
 --- !u!1 &1699717247126839804
 GameObject:
   m_ObjectHideFlags: 0
@@ -276,7 +278,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1699717247126839804}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 7.92, z: 0}
+  m_LocalPosition: {x: -0, y: 5.43, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

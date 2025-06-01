@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50f7f70f709d47345b66b61a113b801c, type: 3}
-  m_Name: LightSword
+  m_Name: Spear
   m_EditorClassIdentifier: 
-  weaponName: LightSword
+  localPosition: {x: 0, y: 0.5, z: 0}
+  localRotationEuler: {x: 0, y: 0, z: 270}
+  weaponName: Spear
   damage: 5
   attackRate: 3
   icon: {fileID: 0}
-  weaponPrefab: {fileID: 7054717796606759848, guid: bf79a3de9bf227b46ac73ff37093d543, type: 3}
+  weaponPrefab: {fileID: 7677843270677827166, guid: 6c85dff1f29e4574b9bbda1666bfdade, type: 3}

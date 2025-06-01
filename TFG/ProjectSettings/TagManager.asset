@@ -14,7 +14,7 @@ TagManager:
   - Ground
   - Hit
   - Loot
-  - 
+  - DestructibleNoCollision
   - 
   - 
   - 
