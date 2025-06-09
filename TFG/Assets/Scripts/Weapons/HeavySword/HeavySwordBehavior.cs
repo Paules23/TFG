@@ -7,8 +7,10 @@ public class HeavySwordBehaviour : MonoBehaviour
     public float attackDuration = 0.4f;
     public float heavyDamageAmount = 50f;
     public LayerMask hittableLayers;
-    public float hitboxRadius = 0.5f;
-    public Transform hitboxPoint; // Posición desde donde se hará el OverlapCircle
+
+    [Header("Rectangular Hitbox")]
+    public Transform hitboxPoint;         // Centro de la zona de impacto
+    public Vector2 hitboxSize = new Vector2(1f, 0.3f);
 
     private bool isAttacking = false;
     private Vector2 attackDirection = Vector2.right;
@@ -17,7 +19,7 @@ public class HeavySwordBehaviour : MonoBehaviour
 
     [Header("Swing Acceleration and angle")]
     public AnimationCurve swingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    public float startAngle ;
+    public float startAngle;
     public float endAngle;
 
     void Start()
@@ -46,7 +48,7 @@ public class HeavySwordBehaviour : MonoBehaviour
             float t = elapsed / attackDuration;
             float curveT = swingCurve.Evaluate(t);
 
-            // Interpolamos desde 0 al ángulo deseado (positivo o negativo según dirección)
+            // Interpolamos desde startAngle a endAngle (se puede usar attackDirection.x si deseas invertir)
             float angle = Mathf.Lerp(startAngle, endAngle, curveT);
             transform.localRotation = Quaternion.Euler(0f, 0f, angle);
 
@@ -63,7 +65,16 @@ public class HeavySwordBehaviour : MonoBehaviour
 
     private void DetectHits()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(hitboxPoint.position, hitboxRadius, hittableLayers);
+        // Ángulo global del rectángulo = rotación actual del arma en Z
+        float currentAngle = transform.eulerAngles.z;
+
+        Collider2D[] hits = Physics2D.OverlapBoxAll(
+            hitboxPoint.position,
+            hitboxSize,
+            currentAngle,
+            hittableLayers
+        );
+
         foreach (var hit in hits)
         {
             if (!alreadyHitTargets.Contains(hit))
@@ -72,7 +83,7 @@ public class HeavySwordBehaviour : MonoBehaviour
                 if (damageable != null)
                 {
                     damageable.TakeDamage(heavyDamageAmount);
-                    alreadyHitTargets.Add(hit); // ✅ Añadir al set para no repetir
+                    alreadyHitTargets.Add(hit);
                 }
             }
         }
@@ -84,7 +95,18 @@ public class HeavySwordBehaviour : MonoBehaviour
         if (hitboxPoint != null)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(hitboxPoint.position, hitboxRadius);
+            float currentAngle = Application.isPlaying
+                ? transform.eulerAngles.z
+                : transform.localRotation.eulerAngles.z;
+
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(
+                hitboxPoint.position,
+                Quaternion.Euler(0f, 0f, currentAngle),
+                Vector3.one
+            );
+            Gizmos.matrix = rotationMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, hitboxSize);
+            Gizmos.matrix = Matrix4x4.identity;
         }
     }
 }

@@ -7,7 +7,6 @@ public class PlayerMovement2D : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 15f;
     public float jumpForce = 25f;
-    public bool canFlip = true;
 
     [Header("Ground Check Settings")]
     public Transform groundCheck;
@@ -37,8 +36,6 @@ public class PlayerMovement2D : MonoBehaviour
     public float wallCheckDistance = 0.1f;
     public LayerMask wallLayer;
 
-    public bool FacingRight { get; private set; } = true;
-
     // Componentes privados
     private Rigidbody2D rb;
     private Collider2D col;
@@ -46,6 +43,9 @@ public class PlayerMovement2D : MonoBehaviour
     private bool isGrounded;
     private bool wasGrounded;
     private bool isSquashing;
+
+    // Escala original (para evitar acumulación de squash)
+    private Vector3 baseScale;
 
     // Estado de dash
     private bool isDashing;
@@ -64,17 +64,18 @@ public class PlayerMovement2D : MonoBehaviour
         dashTimer = 0f;
         dashCooldownTimer = 0f;
 
-        // Aseguramos que el player no tenga fricción al moverse
+        // Guardamos la escala inicial del personaje
+        baseScale = transform.localScale;
+
+        // PhysicsMaterial2D para evitar “pegado” a muros
         var mat = new PhysicsMaterial2D();
         mat.friction = 0f;
         col.sharedMaterial = mat;
-
-
     }
 
     void Update()
     {
-        // Actualizar timers
+        // Actualizar timers de dash
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Time.deltaTime;
 
@@ -85,7 +86,7 @@ public class PlayerMovement2D : MonoBehaviour
             {
                 EndDash();
             }
-            return; // mientras dashing, no hacemos Move/Jump normales
+            return; // mientras dash, no hacemos Move/Jump normales
         }
 
         Move();
@@ -119,32 +120,25 @@ public class PlayerMovement2D : MonoBehaviour
             rb.velocity = new Vector2(input * moveSpeed, rb.velocity.y);
         }
 
-        // Flip visual
-        if (canFlip && input != 0f)
-        {
-            FacingRight = input > 0f;
-            Vector3 scale = transform.localScale;
-            scale.x = FacingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
-            transform.localScale = scale;
-        }
+        // **NO hacemos flip aquí**. El flip lo gestiona PlayerAim u otro script externo.
     }
 
     void CheckJump()
     {
-        // Comprobamos si estamos en el suelo
+        // Comprobar si estamos en suelo
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
-        // Actualizamos coyote timer
+        // Actualizar coyote timer
         if (isGrounded)
             coyoteTimer = coyoteTime;
         else
             coyoteTimer -= Time.deltaTime;
 
-        // Salto
-        if (Input.GetKeyDown(KeyCode.W) && coyoteTimer > 0f)
+        // Salto con barra espaciadora
+        if (Input.GetKeyDown(KeyCode.Space) && coyoteTimer > 0f)
         {
             StartCoroutine(SquashRoutine());
-            rb.velocity = new Vector2(rb.velocity.x, 0f); // cancelar Y anterior
+            rb.velocity = new Vector2(rb.velocity.x, 0f); // cancelar Y previa
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             coyoteTimer = 0f;
         }
@@ -162,18 +156,20 @@ public class PlayerMovement2D : MonoBehaviour
 
     private IEnumerator SquashRoutine()
     {
+        // Si ya se está “squasheando”, salimos para no superponer
         if (isSquashing) yield break;
         isSquashing = true;
 
-        Vector3 startScale = transform.localScale;
+        // Siempre partimos de la escala base (sin acumulaciones anteriores)
+        Vector3 startScale = baseScale;
         Vector3 targetScale = new Vector3(
-            startScale.x * squashWidthFactor,
-            startScale.y * squashHeightFactor,
-            startScale.z
+            baseScale.x * squashWidthFactor,
+            baseScale.y * squashHeightFactor,
+            baseScale.z
         );
 
         float timer = 0f;
-        // Fase 1: squash
+        // Fase 1: deformar a targetScale
         while (timer < squashDuration)
         {
             timer += Time.deltaTime;
@@ -182,7 +178,7 @@ public class PlayerMovement2D : MonoBehaviour
             yield return null;
         }
 
-        // Fase 2: restore
+        // Fase 2: volver a baseScale
         timer = 0f;
         while (timer < squashDuration)
         {
@@ -192,12 +188,14 @@ public class PlayerMovement2D : MonoBehaviour
             yield return null;
         }
 
-        transform.localScale = startScale;
+        // Aseguramos que queda exactamente en baseScale
+        transform.localScale = baseScale;
         isSquashing = false;
     }
 
     void CheckDashInput()
     {
+        // Si pulsas Shift y no está en cooldown ni ya dashing
         if (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer <= 0f && !isDashing)
         {
             StartDash();
@@ -210,21 +208,40 @@ public class PlayerMovement2D : MonoBehaviour
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
 
-        // Resetear velocidad vertical y horizontal
+        // Anulamos toda velocidad previa
         rb.velocity = Vector2.zero;
-        // Desactivamos gravedad para un dash puro horizontal
+
+        // Desactivamos gravedad durante el dash
         rb.gravityScale = 0f;
 
-        float dir = FacingRight ? 1f : -1f;
+        // Determinar dirección de dash:
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+
+        float dir;
+        if (horizontalInput > 0f)
+        {
+            dir = 1f;         // moviéndonos hacia la derecha
+        }
+        else if (horizontalInput < 0f)
+        {
+            dir = -1f;        // moviéndonos hacia la izquierda
+        }
+        else
+        {
+            // Si no se pulsa izquierda/derecha, usar la dirección de flip (localScale.x)
+            dir = (transform.localScale.x >= 0f) ? 1f : -1f;
+        }
+
+        // Aplicar dash horizontal
         rb.velocity = new Vector2(dir * dashSpeed, 0f);
     }
 
     private void EndDash()
     {
         isDashing = false;
-        // Restaurar gravityScale original (el que viene del Inspector)
+        // Restaurar gravedad original
         rb.gravityScale = originalGravityScale;
-        // Mantiene velocidad vertical en 0 para no saltar bruscamente
+        // Mantener velocidad vertical en 0 para evitar caída brusca
         rb.velocity = new Vector2(rb.velocity.x, 0f);
     }
 
@@ -235,12 +252,12 @@ public class PlayerMovement2D : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
-        // Dibuja raycast de muro
+        // Dibuja raycast lateral para depuración
         if (!Application.isPlaying && col != null)
         {
             float halfHeight = col.bounds.size.y * 0.5f - 0.05f;
             Vector2 origin = (Vector2)transform.position + Vector2.up * halfHeight;
-            Vector2 dir = FacingRight ? Vector2.right : Vector2.left;
+            Vector2 dir = (transform.localScale.x >= 0f) ? Vector2.right : Vector2.left;
             Gizmos.color = Color.blue;
             Gizmos.DrawLine(origin, origin + dir * wallCheckDistance);
         }

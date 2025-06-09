@@ -12,9 +12,9 @@ public class SpearBehaviour : MonoBehaviour
     public float spearRecoilDistance = 0.3f;
     public float spearDamage = 40f;
 
-    [Header("Hitbox")]
-    public Transform hitboxPoint;
-    public float hitboxRadius = 0.4f;
+    [Header("Rectangular Hitbox")]
+    public Transform hitboxPoint;      // Centro de la zona de impacto
+    public Vector2 hitboxSize = new Vector2(2f, 0.4f);
     public LayerMask hittableLayers;
 
     private bool isAttacking = false;
@@ -52,22 +52,19 @@ public class SpearBehaviour : MonoBehaviour
         queuedAttack = false;
         alreadyHitTargets.Clear();
 
-        // Movimiento siempre hacia adelante en espacio local
+        // Movimiento siempre hacia adelante en espacio local:
+        // si el objeto padre está volteado, estos offsets se invertirán automáticamente
         Vector3 localRecoilOffset = new Vector3(-spearRecoilDistance, 0f, 0f);
         Vector3 localThrustOffset = new Vector3(spearThrustDistance, 0f, 0f);
 
-
-        // División de tiempos
         float halfRecoil = attackDuration * recoilFraction * 0.5f;
         float thrustTime = attackDuration * (1f - recoilFraction);
         float halfReturn = attackDuration * recoilFraction * 0.5f;
 
-        // Posición local inicial (ya adaptada a la dirección)
         Vector3 startPos = originalLocalPos;
 
         // 1) Retroceso
         float t = 0f;
-        t = 0f;
         while (t < 1f)
         {
             t += Time.deltaTime / halfRecoil;
@@ -75,7 +72,7 @@ public class SpearBehaviour : MonoBehaviour
             yield return null;
         }
 
-        // 2) Empuje
+        // 2) Empuje hacia adelante
         t = 0f;
         while (t < 1f)
         {
@@ -111,7 +108,17 @@ public class SpearBehaviour : MonoBehaviour
 
     private void DetectHits()
     {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(hitboxPoint.position, hitboxRadius, hittableLayers);
+        // Usamos OverlapBoxAll en lugar de OverlapCircleAll:
+        // el rectángulo se rota según la rotación global de la lanza
+        float currentAngle = transform.eulerAngles.z;
+
+        Collider2D[] hits = Physics2D.OverlapBoxAll(
+            hitboxPoint.position,
+            hitboxSize,
+            currentAngle,
+            hittableLayers
+        );
+
         foreach (var hit in hits)
         {
             if (!alreadyHitTargets.Contains(hit))
@@ -131,7 +138,18 @@ public class SpearBehaviour : MonoBehaviour
         if (hitboxPoint != null)
         {
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(hitboxPoint.position, hitboxRadius);
+            float currentAngle = Application.isPlaying
+                ? transform.eulerAngles.z
+                : transform.localRotation.eulerAngles.z;
+
+            Matrix4x4 rotationMatrix = Matrix4x4.TRS(
+                hitboxPoint.position,
+                Quaternion.Euler(0f, 0f, currentAngle),
+                Vector3.one
+            );
+            Gizmos.matrix = rotationMatrix;
+            Gizmos.DrawWireCube(Vector3.zero, hitboxSize);
+            Gizmos.matrix = Matrix4x4.identity;
         }
     }
 }

@@ -2,17 +2,21 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    public Transform weaponPivot; 
+    [Header("Pivot para instanciar el arma")]
+    public Transform weaponPivot;
 
     private WeaponData currentWeaponData;
-    private MonoBehaviour currentWeapon; 
+    private MonoBehaviour currentWeapon;      // Guardaremos ahí la referencia al script concreto (HeavySwordBehaviour o SpearBehaviour)
     private PlayerMovement2D movement;
     private PlayerInventory inventory;
+    private PlayerAim aim;                   // Para saber hacia dónde mira el ratón
 
     void Start()
     {
         movement = GetComponent<PlayerMovement2D>();
         inventory = GetComponent<PlayerInventory>();
+        aim = GetComponent<PlayerAim>();
+
         EquipWeapon(inventory.equippedWeapon);
     }
 
@@ -25,35 +29,57 @@ public class PlayerAttack : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) EquipWeaponByIndex(2);
     }
 
-    void TryAttack()
+    private void TryAttack()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && currentWeapon != null)
+        if (Input.GetMouseButtonDown(0) && currentWeapon != null)
         {
+            // Determinamos “facingRight” en base al PlayerAim (donde está el ratón), no a movement.FacingRight
+            bool facingRight = aim != null && aim.FacingRight;
+
+            // Si currentWeapon es una SpearBehaviour, llamamos a spear.Attack(...)
             if (currentWeapon is SpearBehaviour spear)
             {
-                spear.Attack(movement.FacingRight);
+                spear.Attack(facingRight);
             }
+            // Si currentWeapon es una HeavySwordBehaviour, llamamos a sword.Attack(...)
             else if (currentWeapon is HeavySwordBehaviour sword)
             {
-                sword.Attack(movement.FacingRight);
+                sword.Attack(facingRight);
             }
+            // En el futuro podremos añadir otros tipos (por ejemplo, PistolBehaviour) aquí
         }
     }
 
     public void EquipWeapon(WeaponData weaponData)
     {
+        if (weaponData == null) return;
+
+        // Destruimos la instancia anterior
         if (currentWeapon != null)
         {
-            Destroy(currentWeapon.gameObject);
+            Destroy(((Component)currentWeapon).gameObject);
+            currentWeapon = null;
         }
 
         currentWeaponData = weaponData;
 
-        GameObject weaponInstance = Instantiate(weaponData.weaponPrefab, weaponPivot);
+        // Instanciamos el prefab y lo anclamos a weaponPivot
+        GameObject weaponInstance = Instantiate(
+            weaponData.weaponPrefab,
+            weaponPivot
+        );
+
+        // Ajustamos posición/rotación según lo que tengamos en WeaponData (si existe)
         weaponInstance.transform.localPosition = weaponData.localPosition;
         weaponInstance.transform.localRotation = Quaternion.Euler(weaponData.localRotationEuler);
 
+        // Obtenemos el script concreto que hereda de MonoBehaviour (HeavySwordBehaviour, SpearBehaviour, etc.)
         currentWeapon = weaponInstance.GetComponent<MonoBehaviour>();
+
+        if (currentWeapon == null)
+        {
+            Debug.LogWarning("PlayerAttack: El prefab de arma no contiene un script que herede de MonoBehaviour.");
+        }
     }
 
     private void EquipWeaponByIndex(int index)

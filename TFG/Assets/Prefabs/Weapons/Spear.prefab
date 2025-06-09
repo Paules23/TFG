@@ -108,7 +108,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1144467879407602937}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 2.526, z: 0}
+  m_LocalPosition: {x: -0, y: 1.622, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -214,13 +214,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7031254bcdc58f4681d69fed353f0a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackDuration: 0.4
-  recoilFraction: 0.4
+  attackDuration: 0.3
+  recoilFraction: 0.7
   spearThrustDistance: 1
-  spearRecoilDistance: 0.4
+  spearRecoilDistance: 0.3
   spearDamage: 5
   hitboxPoint: {fileID: 8940367900806388423}
-  hitboxRadius: 0.2
+  hitboxSize: {x: 0.3, y: 2.5}
+  hitboxAngle: 0
   hittableLayers:
     serializedVersion: 2
     m_Bits: 640
