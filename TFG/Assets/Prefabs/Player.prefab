@@ -77,6 +77,7 @@ GameObject:
   - component: {fileID: 6910978893811413952}
   - component: {fileID: 7121801249656343401}
   - component: {fileID: 3524231866304682548}
+  - component: {fileID: 5880184243468299166}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -100,7 +101,7 @@ Transform:
   - {fileID: 2080289025640570893}
   - {fileID: 7427257136720827875}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &462611679858591220
 SpriteRenderer:
@@ -140,8 +141,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1993836985
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -232,7 +233,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 15
   jumpForce: 25
-  canFlip: 1
   groundCheck: {fileID: 4741871467382908268}
   groundCheckRadius: 0.2
   groundLayer:
@@ -279,6 +279,27 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 65e23af736afd7c47a02b83111692b96, type: 2}
   - {fileID: 11400000, guid: 763d736253b05294faa15bdd5d63784d, type: 2}
   equippedWeapon: {fileID: 11400000, guid: f3f749410d079564189250144174e459, type: 2}
+--- !u!114 &5880184243468299166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4635534575632556658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 798aac9ac3579bc4ba22899596e8e30e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eyeTransform: {fileID: 7427257136720827875}
+  eyeSprite: {fileID: 6686528266269480130}
+  ellipseRadiusX: 0.39
+  ellipseRadiusY: 0.83
+  centerDeadZoneX: 0.22
+  eyeMinY: 0.12
+  flipSpeed: 6
+  cursorTexture: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
+  cursorHotspot: {x: 0, y: 0}
 --- !u!1 &8336942293508640987
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,9 +370,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: 1993836985
+  m_SortingLayer: 2
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0

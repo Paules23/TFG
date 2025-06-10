@@ -698,7 +698,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8659412595072091327}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -15.12, y: 2.3, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.221, y: 1.221, z: 1.221}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -711,7 +711,7 @@ Transform:
   - {fileID: 8086846780485341526}
   - {fileID: 2214677976533463428}
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2559748607658021123
 MonoBehaviour:
@@ -725,7 +725,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a00c94b83927f04dae1ad0b23da9635, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTransform: {fileID: 0}
   orbitRadius: 1.5
   aimLerpSpeed: 45
   bulletPrefab: {fileID: 1293808015199171263, guid: bcfbad78fea7d7347982a30dc239c9c7, type: 3}
@@ -736,8 +735,7 @@ MonoBehaviour:
   maxAmmo: 12
   bulletDamage: 25
   bulletLifetime: 3
-  playerAim: {fileID: 0}
-  graphics: []
+  playerAim: {fileID: 5880184243468299166, guid: c89c33826bf531744b1a8a44dc8bbb5a, type: 3}
 --- !u!212 &4872956840112015034
 SpriteRenderer:
   m_ObjectHideFlags: 0

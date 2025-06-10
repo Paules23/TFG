@@ -63,44 +63,45 @@ public class PlayerAim : MonoBehaviour
     /// </summary>
     private void UpdateEyePosition()
     {
-        // 1) Tomamos la posición del ratón en mundo
+        // 1) Obtener la posición del ratón en mundo
         Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         mouseWorld.z = 0f;
 
-        // 2) Convertimos a coordenadas locales del jugador
+        // 2) Convertir la posición del ratón a coordenadas locales del jugador
         Vector3 localMousePos = transform.InverseTransformPoint(mouseWorld);
 
-        // 3) Datos de la elipse:
-        float a = ellipseRadiusX;       // radio X
-        float b = ellipseRadiusY * 0.5f; // radio Y (mitad)
-        float centerY = b;               // centro Y de la elipse (la media-elipse va de y=0 a y=2b)
+        // 2.1) Compensar la inversión en el eje X cuando el jugador incluye flip
+        float flipSign = Mathf.Sign(transform.lossyScale.x);
+        localMousePos.x *= flipSign;
 
-        // 4) Si la X cae en la Dead Zone central → el ojo se queda en y = eyeMinY, y x se limita a ±a
+        // 3) Datos de la elipse
+        float a = ellipseRadiusX;             // radio horizontal
+        float b = ellipseRadiusY * 0.5f;        // radio vertical (mitad de la altura total)
+        float centerY = b;                    // centro vertical de la media-elipse
+
+        // 4) Zona muerta central: si la X está en el rango de la zona muerta,
+        //    se fija la Y en eyeMinY y se limita la X a ±a
         if (Mathf.Abs(localMousePos.x) < centerDeadZoneX)
         {
             float clampedX = Mathf.Clamp(localMousePos.x, -a, a);
-            eyeTransform.localPosition = new Vector3(clampedX, eyeMinY, 0f);
+            // REAPLICAMOS el flipSign a la X para asignar a eyeTransform en el sistema local real
+            eyeTransform.localPosition = new Vector3(clampedX * flipSign, eyeMinY, 0f);
             return;
         }
 
-        // 5) Fuera de Dead Zone:
-        //    - Forzamos que y no baje de eyeMinY
+        // 5) Fuera de la zona muerta: aseguramos que Y no baje de eyeMinY
         localMousePos.y = Mathf.Max(localMousePos.y, eyeMinY);
 
-        //    - Si está por encima de la elipse (considerando la media-elipse):
-        //      la condición de pertenencia a la elipse centrada en (0, centerY) es:
-        //      ((x)/a)^2 + ((y-centerY)/b)^2 <= 1
+        // 6) Verificar si el punto está fuera de la media-elipse superior
         float relX = localMousePos.x;
         float relY = localMousePos.y - centerY;
         float norm = (relX * relX) / (a * a) + (relY * relY) / (b * b);
 
         if (norm > 1f)
         {
-            // Está fuera de la frontera: proyectamos sobre la media-elipse superior
+            // Si el ratón está fuera, se proyecta sobre la frontera de la media-elipse
             float theta = Mathf.Atan2(relY / b, relX / a);
-            // Aseguramos que theta ∈ [0, π] para la mitad superior
-            if (theta < 0f) theta += Mathf.PI;
-
+            if (theta < 0f) theta += Mathf.PI;  // Garantizar theta positivo en [0, π]
             float cos = Mathf.Cos(theta);
             float sin = Mathf.Sin(theta);
 
@@ -108,9 +109,10 @@ public class PlayerAim : MonoBehaviour
             localMousePos.y = centerY + b * sin;
         }
 
-        // 6) Asignamos la posición resultante al ojo
-        eyeTransform.localPosition = new Vector3(localMousePos.x, localMousePos.y, 0f);
+        // 7) Asignamos la posición al ojo aplicando nuevamente el flip en X
+        eyeTransform.localPosition = new Vector3(localMousePos.x * flipSign, localMousePos.y, 0f);
     }
+
 
     /// <summary>
     /// Gira suavemente al jugador (flip) según la posición del ratón en X.

@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35b59b34b16fa2245b34a414f698244c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 0}
+  player: {fileID: 5241803267902182396, guid: c89c33826bf531744b1a8a44dc8bbb5a, type: 3}
   leftThreshold: 0.1
   rightThreshold: 0.9
   bottomThreshold: 0.1

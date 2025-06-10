@@ -22,93 +22,89 @@ public class PistolBehaviour : MonoBehaviour
     public float bulletLifetime = 3f;
 
     [Header("Visual Flip")]
-    [Tooltip("Referencia al PlayerAim para saber dónde mira")]
     public PlayerAim playerAim;
-    [Tooltip("SpriteRenderers de la pistola (handle + barrel)")]
     public SpriteRenderer[] graphics;
 
     int currentAmmo;
     bool isReloading;
     float nextFireTime;
-    bool lastFacing;
+    bool lastFacingRight;
 
-    private void Start()
+    void Start()
     {
         currentAmmo = maxAmmo;
-        if (playerTransform == null && transform.parent)
-            playerTransform = transform.parent;
+        if (playerTransform == null)
+            playerTransform = GameObject.FindWithTag("Player")?.transform;
         if (playerAim == null && playerTransform)
             playerAim = playerTransform.GetComponent<PlayerAim>();
-        lastFacing = playerAim != null ? playerAim.FacingRight : true;
+        lastFacingRight = playerAim != null ? playerAim.FacingRight : true;
     }
 
-    private void Update()
+    void Update()
     {
-        if (!playerTransform) return;
+        if (playerTransform == null) return;
 
         Orbit();
-        Aim();
+        Aim();  // Ya rota correctamente
 
-        // flip visual de sprites
-        bool facing = playerAim != null ? playerAim.FacingRight
-                                        : (transform.position.x >= playerTransform.position.x);
-        if (facing != lastFacing)
-        {
-            lastFacing = facing;
-            foreach (var sr in graphics)
-                sr.flipX = !facing;
-        }
+        // Cálculo de toMouse para la dirección hacia el cursor
+        Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 toMouse = (mouseWorld - (Vector2)transform.position).normalized;
 
-        if (isReloading) return;
-        if (Input.GetMouseButtonDown(0) && Time.time >= nextFireTime)
-        {
-            if (currentAmmo > 0) Shoot();
-            else StartCoroutine(Reload());
-        }
+        // ------ FLIP LÓGICO CON DOT Y CORRECCIÓN DE VARIABLE ------
+        bool flip = Vector2.Dot(transform.right, toMouse) < 0f;
+        foreach (var sr in graphics)
+            sr.flipY = flip;
+
+        // Conservamos escala unitaria en Y y flip X del jugador
+        float signX = playerTransform.localScale.x > 0 ? 1f : -1f;
+        transform.localScale = new Vector3(signX, 1f, 1f);
+
+        // Disparo gestionado externamente por PlayerAttack
     }
 
-    private void Orbit()
-    {
-        var mw = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mw.z = 0;
-        var dir = (mw - playerTransform.position).normalized;
-        var target = playerTransform.position + dir * orbitRadius;
-        transform.position = Vector3.Lerp(transform.position, target, Time.deltaTime * aimLerpSpeed);
-    }
 
-    private void Aim()
+    void Orbit()
     {
-        // 1) Calculamos el ángulo base hacia el ratón
-        var mw = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 mw = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mw.z = 0f;
-        var toMouse = (mw - transform.position).normalized;
-        float baseAngle = Mathf.Atan2(toMouse.y, toMouse.x) * Mathf.Rad2Deg;
-
-        // 2) Si estamos mirando a la izquierda, sumamos 180°
-        float targetAngle = lastFacing ? baseAngle : baseAngle + 180f;
-
-        // 3) Interpolamos suavemente usando LerpAngle, que respeta wrapping
-        float currentAngle = transform.eulerAngles.z;
-        float smoothed = Mathf.LerpAngle(
-            currentAngle,
-            targetAngle,
-            Mathf.Clamp01(Time.deltaTime * aimLerpSpeed)
-        );
-
-        transform.rotation = Quaternion.Euler(0f, 0f, smoothed);
+        Vector3 dir = (mw - playerTransform.position).normalized;
+        Vector3 tgt = playerTransform.position + dir * orbitRadius;
+        transform.position = Vector3.Lerp(transform.position, tgt, Time.deltaTime * aimLerpSpeed);
     }
 
-    private void Shoot()
+    void Aim()
     {
-        var b = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-        var rb = b.GetComponent<Rigidbody2D>();
-        if (rb)
+        Vector3 mw3 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mw3.z = 0f;
+        Vector2 mouseDir = (Vector2)(mw3 - playerTransform.position);
+
+        float baseAng = Mathf.Atan2(mouseDir.y, mouseDir.x) * Mathf.Rad2Deg;
+
+        // Always rotate by baseAng
+        float sm = Mathf.LerpAngle(transform.eulerAngles.z, baseAng,
+                                   Mathf.Clamp01(Time.deltaTime * aimLerpSpeed));
+        transform.rotation = Quaternion.Euler(0f, 0f, sm);
+    }
+
+    // Llamar desde PlayerAttack para disparar
+    public void TriggerFire()
+    {
+        if (isReloading || Time.time < nextFireTime) return;
+        if (currentAmmo > 0) Shoot();
+        else StartCoroutine(Reload());
+    }
+
+    void Shoot()
+    {
+        GameObject b = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
+        Rigidbody2D rb = b.GetComponent<Rigidbody2D>();
+        if (rb != null)
         {
-            // dispara según el up local transformado a world (ignora escala)
-            var dir = muzzlePoint.TransformDirection(Vector3.up).normalized;
+            Vector3 dir = muzzlePoint.TransformDirection(Vector3.up).normalized;
             rb.velocity = dir * bulletSpeed;
         }
-        var bs = b.GetComponent<Bullet>();
+        Bullet bs = b.GetComponent<Bullet>();
         if (bs != null)
         {
             bs.damage = bulletDamage;
@@ -117,20 +113,15 @@ public class PistolBehaviour : MonoBehaviour
 
         currentAmmo--;
         nextFireTime = Time.time + 1f / fireRate;
-        if (currentAmmo <= 0) StartCoroutine(Reload());
+        if (currentAmmo <= 0)
+            StartCoroutine(Reload());
     }
 
-    private IEnumerator Reload()
+    IEnumerator Reload()
     {
         isReloading = true;
         yield return new WaitForSeconds(reloadTime);
         currentAmmo = maxAmmo;
         isReloading = false;
-    }
-    private void OnGUI()
-    {
-        GUI.Label(new Rect(10, 10, 200, 20), $"Ammo: {currentAmmo}/{maxAmmo}");
-        if (isReloading)
-            GUI.Label(new Rect(10, 30, 200, 20), "Reloading...");
     }
 }

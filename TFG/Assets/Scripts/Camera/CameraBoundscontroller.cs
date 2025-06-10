@@ -4,29 +4,18 @@ using UnityEngine;
 [RequireComponent(typeof(Camera))]
 public class CameraBoundsController : MonoBehaviour
 {
-    [Header("References")]
-    public Transform player;
-    private Camera cam;
-
-    [Header("Thresholds (as fraction of screen)")]
+    [Header("Thresholds (Viewport)")]
     [Range(0f, 1f)] public float leftThreshold = 0.33f;
     [Range(0f, 1f)] public float rightThreshold = 0.66f;
     [Range(0f, 1f)] public float bottomThreshold = 0.33f;
     [Range(0f, 1f)] public float topThreshold = 0.66f;
 
     [Header("Lerp Settings")]
-    [Tooltip("Velocidad de desplazamiento de cámara")]
     public float moveSpeed = 5f;
 
-    private float halfWidth;
-    private float halfHeight;
-    private float screenWidth;   // = 2 * halfWidth
-    private float screenHeight;  // = 2 * halfHeight
-
-    private Vector3 originPos;   // posición inicial fija de la cámara
-    private int camXIndex = 0;   // índice horizontal de “pantalla”
-    private int camYIndex = 0;   // índice vertical de “pantalla”
-
+    private Camera cam;
+    private Transform player;
+    private float halfWidth, halfHeight;
     private bool isMoving = false;
     private Vector3 targetPosition;
 
@@ -34,70 +23,53 @@ public class CameraBoundsController : MonoBehaviour
     {
         cam = GetComponent<Camera>();
         if (!cam.orthographic)
-            Debug.LogWarning("CameraBoundsController está diseñado para cámara ortográfica.");
+            Debug.LogWarning("CameraBoundsController diseñado para cámara ortográfica.");
+
+        // Buscar al Player por tag
+        var go = GameObject.FindGameObjectWithTag("Player");
+        if (go != null) player = go.transform;
+        else Debug.LogError("CameraBoundsController: tag 'Player' no encontrado.");
 
         halfHeight = cam.orthographicSize;
-        halfWidth = cam.orthographicSize * cam.aspect;
-        screenWidth = halfWidth * 2f;
-        screenHeight = halfHeight * 2f;
-
-        originPos = transform.position;   // fijamos la posición “0,0” de la grilla
-        camXIndex = 0;
-        camYIndex = 0;
-        targetPosition = originPos;
+        halfWidth = halfHeight * cam.aspect;
+        targetPosition = transform.position;
     }
 
     void LateUpdate()
     {
         if (player == null || isMoving) return;
 
-        // Calcula coordenadas relativas del jugador respecto al origen fijo
-        Vector3 playerWorld = player.position;
-        float relX = playerWorld.x - originPos.x;
-        float relY = playerWorld.y - originPos.y;
+        Vector3 vp = cam.WorldToViewportPoint(player.position);
+        bool needMove = false;
+        Vector3 newCam = transform.position;
 
-        bool moved = false;
-        int newXIndex = camXIndex;
-        int newYIndex = camYIndex;
-
-        // Si cruza el umbral derecho:
-        float rightWorldBorder = (camXIndex + rightThreshold - 0.5f) * screenWidth;
-        float leftWorldBorder = (camXIndex + leftThreshold - 0.5f) * screenWidth;
-        if (relX > rightWorldBorder)
+        // Horizontal
+        if (vp.x > rightThreshold)
         {
-            newXIndex = camXIndex + 1;
-            moved = true;
+            newCam.x = transform.position.x + 2f * halfWidth;
+            needMove = true;
         }
-        else if (relX < leftWorldBorder)
+        else if (vp.x < leftThreshold)
         {
-            newXIndex = camXIndex - 1;
-            moved = true;
+            newCam.x = transform.position.x - 2f * halfWidth;
+            needMove = true;
         }
 
-        // Si cruza el umbral superior:
-        float topWorldBorder = (camYIndex + topThreshold - 0.5f) * screenHeight;
-        float bottomWorldBorder = (camYIndex + bottomThreshold - 0.5f) * screenHeight;
-        if (relY > topWorldBorder)
+        // Vertical
+        if (vp.y > topThreshold)
         {
-            newYIndex = camYIndex + 1;
-            moved = true;
+            newCam.y = transform.position.y + 2f * halfHeight;
+            needMove = true;
         }
-        else if (relY < bottomWorldBorder)
+        else if (vp.y < bottomThreshold)
         {
-            newYIndex = camYIndex - 1;
-            moved = true;
+            newCam.y = transform.position.y - 2f * halfHeight;
+            needMove = true;
         }
 
-        if (moved)
+        if (needMove)
         {
-            camXIndex = newXIndex;
-            camYIndex = newYIndex;
-            // Nueva posición = origin + (índices * tamaño de pantalla)
-            targetPosition = new Vector3(
-                originPos.x + camXIndex * screenWidth,
-                originPos.y + camYIndex * screenHeight,
-                originPos.z
-            );
+            targetPosition = newCam;
             StartCoroutine(MoveCamera());
         }
     }
@@ -105,19 +77,16 @@ public class CameraBoundsController : MonoBehaviour
     private IEnumerator MoveCamera()
     {
         isMoving = true;
-        Vector3 startPos = transform.position;
-        float distance = Vector3.Distance(startPos, targetPosition);
-        // Normalizamos duración con referencia a screenWidth/screenHeight
-        float refSize = Mathf.Max(screenWidth, screenHeight);
-        float duration = distance / (moveSpeed * refSize);
-        duration = Mathf.Max(0.05f, duration);
+        Vector3 start = transform.position;
+        float dist = Vector3.Distance(start, targetPosition);
+        float dur = Mathf.Max(0.05f, dist / (moveSpeed * Mathf.Max(halfWidth, halfHeight)));
 
-        float elapsed = 0f;
-        while (elapsed < duration)
+        float t = 0f;
+        while (t < dur)
         {
-            elapsed += Time.deltaTime;
-            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
-            transform.position = Vector3.Lerp(startPos, targetPosition, t);
+            t += Time.deltaTime;
+            float f = Mathf.SmoothStep(0f, 1f, t / dur);
+            transform.position = Vector3.Lerp(start, targetPosition, f);
             yield return null;
         }
 
