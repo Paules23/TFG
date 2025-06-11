@@ -223,4 +223,4 @@ MonoBehaviour:
   hitboxSize: {x: 0.3, y: 2.5}
   hittableLayers:
     serializedVersion: 2
-    m_Bits: 640
+    m_Bits: 2688

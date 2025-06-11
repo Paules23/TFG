@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3723047155157949459}
   - component: {fileID: 2481188713618422986}
   - component: {fileID: 5729371529991086237}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -164,9 +164,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 25
   lifetime: 0.01
-  HitLayers:
+  maxRange: 10
+  damageLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 2688
+  environmentLayers:
+    serializedVersion: 2
+    m_Bits: 64
   lootLayers:
     serializedVersion: 2
     m_Bits: 256

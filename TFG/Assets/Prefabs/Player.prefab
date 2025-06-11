@@ -171,7 +171,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 10
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 069af161984a45f4e9c2aed55da84b06, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -238,9 +238,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  squashWidthFactor: 1.2
-  squashHeightFactor: 0.8
-  squashDuration: 0.1
   coyoteTime: 0.1
   dashSpeed: 30
   dashDuration: 0.15
@@ -293,10 +290,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eyeTransform: {fileID: 7427257136720827875}
   eyeSprite: {fileID: 6686528266269480130}
-  ellipseRadiusX: 0.39
-  ellipseRadiusY: 0.83
-  centerDeadZoneX: 0.22
-  eyeMinY: 0.12
+  circleRadius: 0.4
+  circleCenterOffset: {x: 0, y: 0.4}
+  eyeMinY: 0.2
   flipSpeed: 6
   cursorTexture: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
   cursorHotspot: {x: 0, y: 0}

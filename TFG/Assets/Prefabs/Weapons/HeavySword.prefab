@@ -189,7 +189,7 @@ MonoBehaviour:
   heavyDamageAmount: 15
   hittableLayers:
     serializedVersion: 2
-    m_Bits: 640
+    m_Bits: 2688
   hitboxPoint: {fileID: 2756514348245208478}
   hitboxSize: {x: 1, y: 2}
   swingCurve:

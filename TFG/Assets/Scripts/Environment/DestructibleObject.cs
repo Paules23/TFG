@@ -1,4 +1,3 @@
-// DestructibleObject.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +21,17 @@ public class DestructibleObject : MonoBehaviour, IDamageable
     public float flashDuration = 0.1f;
 
     private bool isDying = false;
+    private Color baseColor = Color.white;   // Color original del objeto
+
+    void Start()
+    {
+        // Al inicio, almacenamos el color base del objeto (del SpriteRenderer)
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            baseColor = sr.color;
+        }
+    }
 
     public void TakeDamage(float amount)
     {
@@ -43,7 +53,7 @@ public class DestructibleObject : MonoBehaviour, IDamageable
 
         Vector3 originalScale = transform.localScale;
         Vector3 targetScale = originalScale * objectScaleBeforeDie;
-        Color originalColor = sr.color;
+        Color originalColor = baseColor;  // Utilizamos el color base, no el sr.color actual
 
         float elapsed = 0f;
 
@@ -58,7 +68,6 @@ public class DestructibleObject : MonoBehaviour, IDamageable
         }
 
         elapsed = 0f;
-
         // Shrink back and restore color
         while (elapsed < flashDuration)
         {
@@ -68,28 +77,32 @@ public class DestructibleObject : MonoBehaviour, IDamageable
             transform.localScale = Vector3.Lerp(targetScale, originalScale, t);
             yield return null;
         }
+        // Aseguramos que queda exactamente en la escala original y color base.
+        transform.localScale = originalScale;
+        sr.color = originalColor;
     }
 
     private IEnumerator ExplodeAfterFlash()
     {
-        // Trigger camera shake immediately before flash animation
+        // Trigger camera shake immediately before flash animation, si se necesita
         if (CameraShake.Instance != null)
         {
             CameraShake.Instance.Shake();
         }
 
-        // Play smooth flash effect
+        // Ejecutar la animación de flash
         yield return SmoothFlashEffect();
 
-        // Spawn fragments and destroy without delay
+        // Crear fragmentos usando el color base (original)
         SpawnFragments();
         Destroy(gameObject);
     }
 
     private void SpawnFragments()
     {
+        // Aquí usamos el color base almacenado, en lugar del sr.color actual
+        Color fragmentColor = baseColor;
         SpriteRenderer sourceRenderer = GetComponent<SpriteRenderer>();
-        Color fragmentColor = sourceRenderer != null ? sourceRenderer.color : Color.white;
         Bounds bounds = sourceRenderer.bounds;
 
         for (int i = 0; i < fragmentCount; i++)

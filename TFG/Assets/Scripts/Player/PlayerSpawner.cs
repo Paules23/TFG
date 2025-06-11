@@ -2,43 +2,30 @@ using UnityEngine;
 
 /// <summary>
 /// Instancia al Player desde un prefab cuando arranca la escena,
-/// posicionándolo en un punto de spawn definido.
+/// posicionándolo en la posición y rotación del GameObject (este spawner).
 /// </summary>
 public class PlayerSpawner : MonoBehaviour
 {
-    [Header("Prefab & Spawn Point")]
     [Tooltip("Arrastra aquí tu prefab del Player")]
     public GameObject playerPrefab;
-    [Tooltip("Lugar donde quieres que aparezca el Player. Si es null, usa la posición de este GameObject.")]
-    public Transform spawnPoint;
 
     private GameObject playerInstance;
 
     void Awake()
     {
-        // Validaciones
         if (playerPrefab == null)
         {
-            Debug.LogError("PlayerSpawner: debes asignar el Player Prefab en el inspector.");
+            Debug.LogError("PlayerSpawner: debes asignar el Player Prefab en el Inspector.");
             enabled = false;
             return;
         }
 
-        // Si no has puesto un spawnPoint, usamos la posición de este objeto
-        Vector3 pos = (spawnPoint != null) ? spawnPoint.position : transform.position;
-        Quaternion rot = (spawnPoint != null) ? spawnPoint.rotation : Quaternion.identity;
-
-        // Instanciamos el Player
-        playerInstance = Instantiate(playerPrefab, pos, rot);
-        playerInstance.name = playerPrefab.name; // limpia el "(Clone)"
-
-        // Opcional: si quieres guardar una referencia estática:
-        // GameManager.Instance.Player = playerInstance;
+        // Usamos la posición y rotación del GameObject (este spawner) para instanciar el Player.
+        playerInstance = Instantiate(playerPrefab, transform.position, transform.rotation);
+        playerInstance.name = playerPrefab.name; // Elimina el "(Clone)"
+        playerInstance.tag = "Player";  // Aseguramos que tiene la etiqueta "Player" para que otros scripts lo encuentren.
     }
 
-    /// <summary>
-    /// Permite acceder desde otro script a la instancia recién creada.
-    /// </summary>
     public GameObject GetPlayerInstance()
     {
         return playerInstance;
