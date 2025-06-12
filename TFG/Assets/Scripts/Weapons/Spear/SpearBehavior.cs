@@ -1,19 +1,19 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class SpearBehaviour : MonoBehaviour
 {
-    [Header("Parámetros de ataque")]
+    [Header("ParÃ¡metros de ataque")]
     public float attackDuration = 0.4f;
-    [Tooltip("Fracción del tiempo total dedicada al retroceso + retorno")]
+    [Tooltip("FracciÃ³n del tiempo total dedicada al retroceso + retorno")]
     public float recoilFraction = 0.3f;
     public float spearThrustDistance = 1f;
     public float spearRecoilDistance = 0.3f;
     public float spearDamage = 40f;
 
     [Header("Rectangular Hitbox")]
-    public Transform hitboxPoint;      // Centro de la zona de impacto
+    public Transform hitboxPoint;
     public Vector2 hitboxSize = new Vector2(2f, 0.4f);
     public LayerMask hittableLayers;
 
@@ -28,10 +28,6 @@ public class SpearBehaviour : MonoBehaviour
         originalLocalPos = transform.localPosition;
     }
 
-    /// <summary>
-    /// Inicia el ataque: si ya está en curso, encola máximo una vez.
-    /// facingRight = true si el jugador mira a la derecha; false si mira a la izquierda.
-    /// </summary>
     public void Attack(bool facingRight)
     {
         if (!isAttacking)
@@ -41,7 +37,6 @@ public class SpearBehaviour : MonoBehaviour
         }
         else if (!queuedAttack)
         {
-            // Solo permitimos un ataque en cola
             queuedAttack = true;
         }
     }
@@ -52,8 +47,6 @@ public class SpearBehaviour : MonoBehaviour
         queuedAttack = false;
         alreadyHitTargets.Clear();
 
-        // Movimiento siempre hacia adelante en espacio local:
-        // si el objeto padre está volteado, estos offsets se invertirán automáticamente
         Vector3 localRecoilOffset = new Vector3(-spearRecoilDistance, 0f, 0f);
         Vector3 localThrustOffset = new Vector3(spearThrustDistance, 0f, 0f);
 
@@ -63,7 +56,6 @@ public class SpearBehaviour : MonoBehaviour
 
         Vector3 startPos = originalLocalPos;
 
-        // 1) Retroceso
         float t = 0f;
         while (t < 1f)
         {
@@ -72,7 +64,6 @@ public class SpearBehaviour : MonoBehaviour
             yield return null;
         }
 
-        // 2) Empuje hacia adelante
         t = 0f;
         while (t < 1f)
         {
@@ -82,7 +73,6 @@ public class SpearBehaviour : MonoBehaviour
             yield return null;
         }
 
-        // 3) Regreso suave
         t = 0f;
         Vector3 returnStart = transform.localPosition;
         while (t < 1f)
@@ -94,7 +84,6 @@ public class SpearBehaviour : MonoBehaviour
 
         transform.localPosition = originalLocalPos;
 
-        // Si se encoló otro ataque, lo iniciamos
         if (queuedAttack)
         {
             queuedAttack = false;
@@ -108,8 +97,6 @@ public class SpearBehaviour : MonoBehaviour
 
     private void DetectHits()
     {
-        // Usamos OverlapBoxAll en lugar de OverlapCircleAll:
-        // el rectángulo se rota según la rotación global de la lanza
         float currentAngle = transform.eulerAngles.z;
 
         Collider2D[] hits = Physics2D.OverlapBoxAll(
@@ -128,6 +115,14 @@ public class SpearBehaviour : MonoBehaviour
                 {
                     damageable.TakeDamage(spearDamage);
                     alreadyHitTargets.Add(hit);
+
+                    // Si es un ChargingBull, aplicarle stun especial
+                    var bull = hit.GetComponent<ChargingBull>();
+                    if (bull != null)
+                    {
+                        Debug.Log("[SpearBehaviour] ChargingBull golpeado â†’ aplicar stun.");
+                        bull.ApplySpearStun();
+                    }
                 }
             }
         }
