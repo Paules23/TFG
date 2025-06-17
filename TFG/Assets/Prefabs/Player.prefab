@@ -239,7 +239,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  coyoteTime: 0.1
+  coyoteTime: 0.2
   dashSpeed: 30
   dashDuration: 0.15
   dashCooldown: 0.5
