@@ -150,11 +150,18 @@ public class ChargingBull : MonoBehaviour, IDamageable
 
     public void TakeDamage(float dmg)
     {
+        if (state == BullState.Idle)
+        {
+            Debug.Log("[ChargingBull] Ignora el daño porque está en estado Idle.");
+            return;
+        }
+
         health -= dmg;
         StartCoroutine(HitFlash());
         if (health <= 0f)
             Destroy(gameObject);
     }
+
 
     IEnumerator HitFlash()
     {

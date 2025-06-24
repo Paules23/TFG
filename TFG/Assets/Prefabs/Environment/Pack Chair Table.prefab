@@ -64,7 +64,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2393974621764278456, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2974085689450684600, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: m_Name
@@ -88,7 +88,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6245276022599501985, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6434138449333970357, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: m_RootOrder
@@ -144,7 +144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9154443416081816810, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -186,7 +186,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2393974621764278456, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2974085689450684600, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: m_Name
@@ -210,7 +210,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6245276022599501985, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6434138449333970357, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: m_RootOrder
@@ -266,7 +266,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9154443416081816810, guid: 560f47032ec480246aff18d6d74aa294, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -300,11 +300,11 @@ PrefabInstance:
       objectReference: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
     - target: {fileID: 5680453370731379253, guid: f48b93c392c977b49b6afbb958da7565, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5810466325809786334, guid: f48b93c392c977b49b6afbb958da7565, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6479225654912320216, guid: f48b93c392c977b49b6afbb958da7565, type: 3}
       propertyPath: lootFragmentPrefab
@@ -312,7 +312,7 @@ PrefabInstance:
       objectReference: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
     - target: {fileID: 7562853357777949723, guid: f48b93c392c977b49b6afbb958da7565, type: 3}
       propertyPath: health
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 9215054133948374489, guid: f48b93c392c977b49b6afbb958da7565, type: 3}
       propertyPath: m_RootOrder

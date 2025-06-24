@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class LootFragment : MonoBehaviour
@@ -7,6 +7,8 @@ public class LootFragment : MonoBehaviour
     public float acceleration = 10f;
     public float attractionRange = 3f;
     public string playerTag = "Player";
+
+    public float destroyYThreshold = -50f; // ðŸ‘ˆ Umbral de destrucciÃ³n por caÃ­da
 
     private Transform player;
     private Rigidbody2D rb;
@@ -20,7 +22,6 @@ public class LootFragment : MonoBehaviour
         col = GetComponent<Collider2D>();
         player = GameObject.FindGameObjectWithTag(playerTag)?.transform;
 
-
         if (player == null)
         {
             Debug.LogWarning("No player found with tag: " + playerTag);
@@ -29,6 +30,13 @@ public class LootFragment : MonoBehaviour
 
     void Update()
     {
+        //  Destruye si cae fuera del mapa
+        if (transform.position.y <= destroyYThreshold)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         float distance = Vector2.Distance(transform.position, player.position);
 
         if (distance <= attractionRange)
@@ -36,14 +44,11 @@ public class LootFragment : MonoBehaviour
             if (!isAttracted)
             {
                 isAttracted = true;
-
-                // Activar modo atracción
                 rb.bodyType = RigidbodyType2D.Kinematic;
                 rb.simulated = true;
-                col.isTrigger = true; // Evita colisión física con el player
+                col.isTrigger = true;
             }
 
-            // Movimiento hacia el jugador
             currentSpeed += acceleration * Time.deltaTime;
             currentSpeed = Mathf.Min(currentSpeed, attractionSpeed);
 
@@ -52,13 +57,11 @@ public class LootFragment : MonoBehaviour
         }
         else if (isAttracted)
         {
-            // Salió del rango de atracción
             isAttracted = false;
             currentSpeed = 0f;
-
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.simulated = true;
-            col.isTrigger = false; // Vuelve a tener colisión física normal
+            col.isTrigger = false;
         }
     }
 
@@ -66,7 +69,6 @@ public class LootFragment : MonoBehaviour
     {
         if (other.CompareTag(playerTag))
         {
-            // Más adelante aquí puedes sumar al inventario según color, etc.
             Destroy(gameObject);
         }
     }

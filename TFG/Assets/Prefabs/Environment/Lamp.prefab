@@ -144,9 +144,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 6
+  health: 2
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
-  fragmentCount: 10
+  fragmentCount: 5
   fragmentSpreadAngle: -60
   fragmentMinForce: 0.5
   fragmentMaxForce: 2
@@ -336,7 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 6
+  health: 2
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 489e45f1fd6a2e14e9548ed1449c162d, type: 3}
   fragmentCount: 10
   fragmentSpreadAngle: -60
@@ -493,7 +493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 6
+  health: 2
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 489e45f1fd6a2e14e9548ed1449c162d, type: 3}
   fragmentCount: 10
   fragmentSpreadAngle: -60
@@ -646,7 +646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 6
+  health: 2
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
   fragmentCount: 10
   fragmentSpreadAngle: -60

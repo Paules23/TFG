@@ -179,9 +179,9 @@ MonoBehaviour:
   stopThreshold: 2
   slideFriction: 1
   minSlideSpeed: 1
-  damageToPlayer: 20
+  damageToPlayer: 2
   spearStunTime: 1
-  hitFlashColor: {r: 0.5, g: 0, b: 0.5, a: 1}
+  hitFlashColor: {r: 0, g: 0, b: 0, a: 0.4}
   hitFlashDuration: 0.15
   spriteRenderer: {fileID: 990340369324401204}
   idleColor: {r: 0, g: 1, b: 0, a: 1}

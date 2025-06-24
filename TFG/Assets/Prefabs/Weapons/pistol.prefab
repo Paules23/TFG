@@ -730,7 +730,7 @@ MonoBehaviour:
   aimLerpSpeed: 45
   bulletPrefab: {fileID: 1293808015199171263, guid: bcfbad78fea7d7347982a30dc239c9c7, type: 3}
   muzzlePoint: {fileID: 5103872590341991952}
-  bulletSpeed: 25
+  bulletSpeed: 35
   fireRate: 4
   reloadTime: 0.6
   maxAmmo: 12

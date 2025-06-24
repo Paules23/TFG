@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -8844226397726182693}
   - component: {fileID: 3059400832978450860}
   m_Layer: 11
-  m_Name: OrbitingBall1
+  m_Name: OrbitingBallInner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.04045032, g: 0.9528302, b: 0.5345583, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 1
-  touchDamage: 10
-  damageColor: {r: 1, g: 0, b: 0, a: 1}
+  touchDamage: 1
+  damageColor: {r: 0, g: 0, b: 0, a: 0.4}
   flashDuration: 0.15
   playerTag: Player

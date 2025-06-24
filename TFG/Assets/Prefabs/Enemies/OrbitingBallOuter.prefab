@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -6662760846634171567}
   - component: {fileID: -3783025565944272012}
   m_Layer: 11
-  m_Name: OrbitingBall
+  m_Name: OrbitingBallOuter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 1
-  touchDamage: 10
-  damageColor: {r: 1, g: 0, b: 0.8643589, a: 1}
+  touchDamage: 1
+  damageColor: {r: 0, g: 0, b: 0, a: 0.4}
   flashDuration: 0.15
   playerTag: Player

@@ -144,9 +144,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 6
+  health: 2
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
-  fragmentCount: 10
+  fragmentCount: 5
   fragmentSpreadAngle: -60
   fragmentMinForce: 0.5
   fragmentMaxForce: 2
@@ -271,7 +271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4300926151448443133, guid: 3c4218f3665a96146b91625a176cf553, type: 3}
       propertyPath: health
-      value: 6
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4394495385978185235, guid: 3c4218f3665a96146b91625a176cf553, type: 3}
       propertyPath: m_Name
@@ -283,7 +283,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5158352972596456802, guid: 3c4218f3665a96146b91625a176cf553, type: 3}
       propertyPath: health
-      value: 6
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5606071684039833416, guid: 3c4218f3665a96146b91625a176cf553, type: 3}
       propertyPath: m_LocalScale.x
@@ -307,7 +307,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7491677396197574246, guid: 3c4218f3665a96146b91625a176cf553, type: 3}
       propertyPath: health
-      value: 6
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7491677396197574246, guid: 3c4218f3665a96146b91625a176cf553, type: 3}
+      propertyPath: fragmentCount
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

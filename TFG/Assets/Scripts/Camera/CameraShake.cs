@@ -13,6 +13,9 @@ public class CameraShake : MonoBehaviour
     [Tooltip("Magnitude of the shake displacement")]
     public float shakeMagnitude = 0.05f;
 
+    private Coroutine shakeCoroutine;
+    private Vector3 originalPos;
+
     void Awake()
     {
         Instance = this;
@@ -23,13 +26,18 @@ public class CameraShake : MonoBehaviour
     /// </summary>
     public void Shake()
     {
-        StartCoroutine(ShakeCoroutine(shakeDuration, shakeMagnitude));
+        // Si ya está temblando, reiniciamos
+        if (shakeCoroutine != null)
+            StopCoroutine(shakeCoroutine);
+
+        // Guardamos posición actual como base
+        originalPos = transform.position;
+        shakeCoroutine = StartCoroutine(ShakeCoroutine(shakeDuration, shakeMagnitude));
     }
 
     private IEnumerator ShakeCoroutine(float duration, float magnitude)
     {
         float elapsed = 0f;
-        Vector3 originalPos = transform.position;  // Base dynamic position
 
         while (elapsed < duration)
         {
@@ -39,7 +47,21 @@ public class CameraShake : MonoBehaviour
             yield return null;
         }
 
-        // Restaurar posición original para que no afecte otros scripts
+        // Restaurar posición original
         transform.position = originalPos;
+        shakeCoroutine = null;
+    }
+
+    /// <summary>
+    /// Detiene cualquier shake en curso y restaura posición.
+    /// Solo actúa si realmente hay un shake activo.
+    /// </summary>
+    public void StopShake()
+    {
+        if (shakeCoroutine == null) return;
+
+        StopCoroutine(shakeCoroutine);
+        transform.position = originalPos;
+        shakeCoroutine = null;
     }
 }

@@ -154,6 +154,12 @@ public class FlyingShooter : MonoBehaviour, IDamageable
     // IDamageable
     public void TakeDamage(float dmg)
     {
+        if (state == FlyState.Idle)
+        {
+            Debug.Log("[FlyingShooter] Ignora el daño porque está en estado Idle.");
+            return;
+        }
+
         currentHealth -= dmg;
         StartCoroutine(FlashHit());
         if (currentHealth <= 0f)
