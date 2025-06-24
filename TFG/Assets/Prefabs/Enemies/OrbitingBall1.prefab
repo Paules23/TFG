@@ -134,6 +134,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe37264bb3919bd4cabdcea670e4df2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
+  maxHealth: 1
   touchDamage: 10
+  damageColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.15
   playerTag: Player

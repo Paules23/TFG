@@ -134,18 +134,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18442a6f1b8897544b5e5d4cfa2d393a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  coreHealth: 30
+  coreHealth: 6
   innerRing:
     name: Ring
     ballPrefab: {fileID: 8014767799226657954, guid: 8b87f91f7acf95d488ec30ae876c8c96, type: 3}
-    ballCount: 8
+    ballCount: 12
     radius: 2
-    angularSpeed: -60
+    angularSpeed: -180
   outerRing:
     name: Ring
     ballPrefab: {fileID: 5066230559670844748, guid: 7bc2e167989d1bd4fbf1e2ab60772a5b, type: 3}
-    ballCount: 12
+    ballCount: 16
     radius: 4
-    angularSpeed: -90
+    angularSpeed: -120
   damageColor: {r: 1, g: 0, b: 0, a: 1}
   flashDuration: 0.2

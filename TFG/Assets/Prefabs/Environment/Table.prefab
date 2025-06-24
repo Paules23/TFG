@@ -32,7 +32,7 @@ Transform:
   - {fileID: 8725053370269518933}
   - {fileID: 6453865726689407690}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5401133166336523773
 GameObject:
@@ -178,7 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 30
+  health: 6
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
   fragmentCount: 10
   fragmentSpreadAngle: -60
@@ -331,7 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 30
+  health: 6
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
   fragmentCount: 10
   fragmentSpreadAngle: -60
@@ -484,7 +484,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81fb9ab8034dfdc44991bf74f26098ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 30
+  health: 6
   lootFragmentPrefab: {fileID: 3615847254406452700, guid: 695f681fefa07744bae39685a5656e14, type: 3}
   fragmentCount: 10
   fragmentSpreadAngle: -60

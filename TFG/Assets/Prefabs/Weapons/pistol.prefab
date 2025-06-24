@@ -731,11 +731,11 @@ MonoBehaviour:
   bulletPrefab: {fileID: 1293808015199171263, guid: bcfbad78fea7d7347982a30dc239c9c7, type: 3}
   muzzlePoint: {fileID: 5103872590341991952}
   bulletSpeed: 25
-  fireRate: 10
-  reloadTime: 1
+  fireRate: 4
+  reloadTime: 0.6
   maxAmmo: 12
-  bulletDamage: 25
-  bulletLifetime: 3
+  bulletDamage: 1
+  bulletLifetime: 5
   playerAim: {fileID: 5880184243468299166, guid: c89c33826bf531744b1a8a44dc8bbb5a, type: 3}
   graphics: []
 --- !u!212 &4872956840112015034
