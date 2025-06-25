@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 2502484347133531365}
   m_Layer: 0
   m_Name: Maincamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -151,11 +151,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35b59b34b16fa2245b34a414f698244c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 5241803267902182396, guid: c89c33826bf531744b1a8a44dc8bbb5a, type: 3}
-  leftThreshold: 0.1
-  rightThreshold: 0.9
-  bottomThreshold: 0.1
-  topThreshold: 0.9
+  useInitialPosition: 0
+  initialPosition: {x: -6, y: 10, z: -1}
+  leftThreshold: 0
+  rightThreshold: 1
+  bottomThreshold: 0
+  topThreshold: 1
   moveSpeed: 5
 --- !u!114 &2502484347133531365
 MonoBehaviour:

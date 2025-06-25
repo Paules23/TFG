@@ -1,27 +1,56 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    public List<WeaponData> weapons = new List<WeaponData>();
+    public WeaponData[] allWeapons;  // Lista completa de armas disponibles en orden
     public WeaponData equippedWeapon;
 
-    public void EquipWeapon(WeaponData weapon)
+    private bool[] unlocked; // Un array paralelo a allWeapons
+
+    void Awake()
     {
-        if (weapons.Contains(weapon))
+        unlocked = new bool[allWeapons.Length];
+    }
+
+    public bool UnlockWeapon(WeaponData weapon)
+    {
+        Debug.Log($"Intentando desbloquear arma: {weapon.name}");
+
+        int index = System.Array.IndexOf(allWeapons, weapon);
+
+        if (index == -1)
         {
-            equippedWeapon = weapon;
-            Debug.Log("Equipada arma: " + weapon.weaponName);
+            Debug.LogWarning($"[UnlockWeapon] Arma {weapon.name} no encontrada en el array 'allWeapons'.");
+            return false;
+        }
+
+        if (unlocked[index])
+        {
+            Debug.Log($"[UnlockWeapon] El arma {weapon.name} ya estaba desbloqueada.");
+            return false;
+        }
+
+        unlocked[index] = true;
+        Debug.Log($"[UnlockWeapon] Arma {weapon.name} desbloqueada correctamente en el índice {index}.");
+
+        return true;
+    }
+
+
+    public void EquipWeaponByIndex(int index)
+    {
+        if (index >= 0 && index < allWeapons.Length && unlocked[index])
+        {
+            equippedWeapon = allWeapons[index];
         }
     }
 
-    // Solo para test rápido desde el editor (opcional)
-    public void EquipWeaponByIndex(int index)
+    public void EquipWeaponDirectly(WeaponData weapon)
     {
-        if (index >= 0 && index < weapons.Count)
+        int index = System.Array.IndexOf(allWeapons, weapon);
+        if (index != -1 && unlocked[index])
         {
-            Debug.Log("Indice de arma: " + index);
-            EquipWeapon(weapons[index]);
+            equippedWeapon = weapon;
         }
     }
 }

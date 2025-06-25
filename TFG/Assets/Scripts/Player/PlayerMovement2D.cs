@@ -14,7 +14,6 @@ public class PlayerMovement2D : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("Coyote Jump")]
-    [Tooltip("Tiempo (en s) que permitimos saltar tras perder contacto con el suelo")]
     public float coyoteTime = 0.1f;
     private float coyoteTimer;
 
@@ -24,18 +23,22 @@ public class PlayerMovement2D : MonoBehaviour
     public float dashCooldown = 0.5f;
 
     [Header("Wall Slide/Fall Fix")]
-    [Tooltip("Distancia para el raycast horizontal que detecta muros")]
     public float wallCheckDistance = 0.1f;
     public LayerMask wallLayer;
 
-    // Componentes privados
+    [Header("Dash Cooldown Color")]
+    [Tooltip("Color que adopta el jugador al hacer dash")]
+    public Color cooldownColor = Color.gray;
+
+    private Color preDashColor;       // color que tenía justo antes del dash
+    private SpriteRenderer spriteRenderer;
+
     private Rigidbody2D rb;
     private Collider2D col;
     private float originalGravityScale;
     private bool isGrounded;
     private bool wasGrounded;
 
-    // Estado de dash
     private bool isDashing;
     private float dashTimer;
     private float dashCooldownTimer;
@@ -44,6 +47,8 @@ public class PlayerMovement2D : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
         originalGravityScale = rb.gravityScale;
         wasGrounded = true;
         coyoteTimer = 0f;
@@ -54,18 +59,22 @@ public class PlayerMovement2D : MonoBehaviour
 
     void Update()
     {
-        // Actualizar timers de dash
+        // Si hay cooldown activo, actualizamos el color
         if (dashCooldownTimer > 0f)
+        {
             dashCooldownTimer -= Time.deltaTime;
+            float t = 1f - (dashCooldownTimer / dashCooldown);
+            // Interpolamos desde cooldownColor hacia preDashColor
+            if (spriteRenderer != null)
+                spriteRenderer.color = Color.Lerp(cooldownColor, preDashColor, t);
+        }
 
         if (isDashing)
         {
             dashTimer -= Time.deltaTime;
             if (dashTimer <= 0f)
-            {
                 EndDash();
-            }
-            return; // Mientras dash, no se ejecutan Move y Jump normales.
+            return;
         }
 
         Move();
@@ -77,46 +86,32 @@ public class PlayerMovement2D : MonoBehaviour
     void Move()
     {
         float input = Input.GetAxisRaw("Horizontal");
-
-        // Raycast horizontal para detectar muro solo si no estamos en el suelo.
         bool touchingWall = false;
+
         if (!isGrounded && input != 0f)
         {
-            Vector2 origin = (Vector2)transform.position + Vector2.up * (col.bounds.size.y * 0.5f - 0.05f);
+            Vector2 origin = (Vector2)transform.position +
+                             Vector2.up * (col.bounds.size.y * 0.5f - 0.05f);
             Vector2 dir = input > 0 ? Vector2.right : Vector2.left;
             RaycastHit2D hit = Physics2D.Raycast(origin, dir, wallCheckDistance, wallLayer);
             touchingWall = hit.collider != null;
         }
 
         if (touchingWall)
-        {
-            // Si chocamos contra un muro en el aire, anulamos la velocidad X.
             rb.velocity = new Vector2(0f, rb.velocity.y);
-        }
         else
-        {
-            // Movimiento horizontal normal.
             rb.velocity = new Vector2(input * moveSpeed, rb.velocity.y);
-        }
-
-        // El flip del jugador se gestiona en otro script (por ejemplo, PlayerAim).
     }
 
     void CheckJump()
     {
-        // Comprobar si estamos en suelo.
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        if (isGrounded) coyoteTimer = coyoteTime;
+        else coyoteTimer -= Time.deltaTime;
 
-        // Actualizar coyote timer.
-        if (isGrounded)
-            coyoteTimer = coyoteTime;
-        else
-            coyoteTimer -= Time.deltaTime;
-
-        // Salto con barra espaciadora.
         if (Input.GetKeyDown(KeyCode.Space) && coyoteTimer > 0f)
         {
-            rb.velocity = new Vector2(rb.velocity.x, 0f); // Cancelar velocidad vertical previa.
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             coyoteTimer = 0f;
         }
@@ -125,17 +120,13 @@ public class PlayerMovement2D : MonoBehaviour
     void CheckLanding()
     {
         bool currentlyGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        // Si acabamos de aterrizar, podría ejecutarse alguna animación de aterrizaje.
         wasGrounded = currentlyGrounded;
     }
 
     void CheckDashInput()
     {
-        // Si pulsas Shift y no estás en dash ni en cooldown, iniciamos dash.
         if (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer <= 0f && !isDashing)
-        {
             StartDash();
-        }
     }
 
     private void StartDash()
@@ -144,34 +135,30 @@ public class PlayerMovement2D : MonoBehaviour
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
 
-        // Cancelamos cualquier velocidad previa.
-        rb.velocity = Vector2.zero;
+        // Guardamos el color actual (puede haber sido modificado por daño)
+        if (spriteRenderer != null)
+            preDashColor = spriteRenderer.color;
 
-        // Desactivamos gravedad durante el dash.
+        // Ponemos el color de cooldown
+        if (spriteRenderer != null)
+            spriteRenderer.color = cooldownColor;
+
+        rb.velocity = Vector2.zero;
         rb.gravityScale = 0f;
 
-        // Determinar la dirección del dash.
         float horizontalInput = Input.GetAxisRaw("Horizontal");
-
         float dir;
-        if (horizontalInput > 0f)
-            dir = 1f; // Derecha.
-        else if (horizontalInput < 0f)
-            dir = -1f; // Izquierda.
-        else
-            // Si no se pulsa izquierda/derecha, usamos la dirección basada en la escala del jugador.
-            dir = (transform.localScale.x >= 0f) ? 1f : -1f;
+        if (horizontalInput > 0f) dir = 1f;
+        else if (horizontalInput < 0f) dir = -1f;
+        else dir = (transform.localScale.x >= 0f) ? 1f : -1f;
 
-        // Aplicar dash horizontal.
         rb.velocity = new Vector2(dir * dashSpeed, 0f);
     }
 
     private void EndDash()
     {
         isDashing = false;
-        // Restauramos la gravedad original.
         rb.gravityScale = originalGravityScale;
-        // Evitamos cambios bruscos en la velocidad vertical.
         rb.velocity = new Vector2(rb.velocity.x, 0f);
     }
 
@@ -182,7 +169,7 @@ public class PlayerMovement2D : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
-        // Dibuja un raycast lateral para depuración en el editor.
+
         if (!Application.isPlaying && col != null)
         {
             float halfHeight = col.bounds.size.y * 0.5f - 0.05f;

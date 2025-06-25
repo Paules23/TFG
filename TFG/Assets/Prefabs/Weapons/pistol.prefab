@@ -732,12 +732,13 @@ MonoBehaviour:
   muzzlePoint: {fileID: 5103872590341991952}
   bulletSpeed: 35
   fireRate: 4
-  reloadTime: 0.6
+  reloadTime: 3
   maxAmmo: 12
   bulletDamage: 1
   bulletLifetime: 5
   playerAim: {fileID: 5880184243468299166, guid: c89c33826bf531744b1a8a44dc8bbb5a, type: 3}
-  graphics: []
+  reloadTintColor: {r: 0.8301887, g: 0.2232111, b: 0.2232111, a: 0.80784315}
+  ammoText: {fileID: 0}
 --- !u!212 &4872956840112015034
 SpriteRenderer:
   m_ObjectHideFlags: 0

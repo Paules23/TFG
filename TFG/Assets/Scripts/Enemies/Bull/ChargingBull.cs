@@ -8,7 +8,11 @@ public class ChargingBull : MonoBehaviour, IDamageable
 
     [Header("Stats")]
     public float maxHealth = 50f;
+    [Tooltip("Mitad del ancho del rectángulo de detección")]
     public float detectionRange = 5f;
+    [Tooltip("Mitad de la altura del rectángulo de detección")]
+    public float verticalRange = 1.5f;
+
     public float preparationTime = 2f;
     public float chargeSpeed = 12f;
     public float stopThreshold = 0.5f;
@@ -18,7 +22,7 @@ public class ChargingBull : MonoBehaviour, IDamageable
     public float spearStunTime = 1f;
 
     [Header("Flash on Hit")]
-    public Color hitFlashColor = new Color(0.5f, 0f, 0.5f); // Lila
+    public Color hitFlashColor = new Color(0.5f, 0f, 0.5f);
     public float hitFlashDuration = 0.15f;
 
     [Header("Visual Feedback")]
@@ -65,22 +69,25 @@ public class ChargingBull : MonoBehaviour, IDamageable
     {
         if (player == null) return;
 
+        // Mantener siempre misma Y
         transform.position = new Vector3(transform.position.x, fixedY, transform.position.z);
 
         switch (state)
         {
             case BullState.Idle: TryDetect(); break;
-            case BullState.Preparing: break;
             case BullState.Charging: DoCharge(); break;
             case BullState.Cooling: DoCooling(); break;
-            case BullState.SpearStunned: break;
+                // Preparing y SpearStunned no hacen nada en Update
         }
     }
 
     void TryDetect()
     {
         float dx = Mathf.Abs(player.position.x - transform.position.x);
-        if (dx <= detectionRange)
+        float dy = Mathf.Abs(player.position.y - transform.position.y);
+
+        // Si el jugador está dentro del rectángulo dx ≤ detectionRange && dy ≤ verticalRange
+        if (dx <= detectionRange && dy <= verticalRange)
         {
             state = BullState.Preparing;
             UpdateColor();
@@ -125,7 +132,6 @@ public class ChargingBull : MonoBehaviour, IDamageable
 
     public void ApplySpearStun()
     {
-        Debug.Log("[ChargingBull] ApplySpearStun() llamado desde lanza.");
         StopAllCoroutines();
         speedX = 0f;
         StartCoroutine(SpearStun());
@@ -135,14 +141,10 @@ public class ChargingBull : MonoBehaviour, IDamageable
     {
         state = BullState.SpearStunned;
         UpdateColor();
-        Debug.Log($"[ChargingBull] Aturdido durante {spearStunTime}s.");
-        float t = 0f;
-        while (t < spearStunTime)
-        {
-            t += Time.deltaTime;
-            yield return null;
-        }
-        Debug.Log("[ChargingBull] Fin de stun → Preparing.");
+        StartCoroutine(HitFlash());
+
+        yield return new WaitForSeconds(spearStunTime);
+
         state = BullState.Preparing;
         UpdateColor();
         StartCoroutine(PrepareAndCharge());
@@ -152,7 +154,7 @@ public class ChargingBull : MonoBehaviour, IDamageable
     {
         if (state == BullState.Idle)
         {
-            Debug.Log("[ChargingBull] Ignora el daño porque está en estado Idle.");
+            Debug.Log("[ChargingBull] Ignora daño en Idle.");
             return;
         }
 
@@ -161,7 +163,6 @@ public class ChargingBull : MonoBehaviour, IDamageable
         if (health <= 0f)
             Destroy(gameObject);
     }
-
 
     IEnumerator HitFlash()
     {
@@ -187,15 +188,14 @@ public class ChargingBull : MonoBehaviour, IDamageable
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
-        {
-            var pd = other.GetComponent<IDamageable>();
-            if (pd != null) pd.TakeDamage(damageToPlayer);
-        }
+            other.GetComponent<IDamageable>()?.TakeDamage(damageToPlayer);
     }
 
     void OnDrawGizmosSelected()
     {
+        // Dibuja el rectángulo de detección
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        Vector3 size = new Vector3(detectionRange * 2f, verticalRange * 2f, 0f);
+        Gizmos.DrawWireCube(transform.position, size);
     }
 }

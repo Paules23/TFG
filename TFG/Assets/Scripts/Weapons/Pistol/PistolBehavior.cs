@@ -1,20 +1,18 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
+using System.Linq;
+using TMPro;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class PistolBehaviour : MonoBehaviour
 {
     [Header("Weapon Movement Bounds")]
-    [Tooltip("Radio del círculo (zona roja) por donde se mueve el arma")]
     public float circleRadius = 1.5f;
-    [Tooltip("Desplazamiento del centro del círculo en unidades locales (define la posición de referencia respecto al player)")]
     public Vector2 circleCenterOffset = new Vector2(0f, 0.6f);
-    [Tooltip("Velocidad de interpolación para mover el arma (más alto = movimiento más ágil)")]
     public float aimLerpSpeed = 15f;
 
     [Header("Fire Settings")]
     public GameObject bulletPrefab;
-    [Tooltip("Punto en el que se instancian las balas (debe estar dentro de la jerarquía del arma)")]
     public Transform muzzlePoint;
     public float bulletSpeed = 15f;
     public float fireRate = 5f;
@@ -26,82 +24,67 @@ public class PistolBehaviour : MonoBehaviour
     public float bulletLifetime = 3f;
 
     [Header("Visual")]
-    [Tooltip("Referencia al componente PlayerAim para saber la dirección (flip) del jugador")]
     public PlayerAim playerAim;
-    [Tooltip("Referencias a los SpriteRenderer que componen el arma")]
-    public SpriteRenderer[] graphics;
+    [Tooltip("Color to tint all weapon sprites while reloading")]
+    public Color reloadTintColor = Color.red; 
 
-    // Variables para disparo
-    int currentAmmo;
-    bool isReloading;
-    float nextFireTime;
-
-    // Referencia al transform del jugador (padre de la pistola)
+    // Estado interno
+    private int currentAmmo;
+    private bool isReloading;
+    private float nextFireTime;
     private Transform playerTransform;
+
+    // Sprites de arma y sus colores originales
+    private SpriteRenderer[] graphics;
+    private Color[] originalColors;
+
+    void Awake()
+    {
+        playerTransform = transform.parent;
+        if (playerAim == null && playerTransform != null)
+            playerAim = playerTransform.GetComponent<PlayerAim>();
+
+        // Obtener todos los SpriteRenderer hijos (excluye este)
+        graphics = GetComponentsInChildren<SpriteRenderer>(true)
+            .Where(sr => sr.gameObject != this.gameObject)
+            .ToArray();
+    }
 
     void Start()
     {
         currentAmmo = maxAmmo;
-        // Se asume que la pistola es hija del jugador.
-        playerTransform = transform.parent;
 
-        if (playerAim == null && playerTransform != null)
-            playerAim = playerTransform.GetComponent<PlayerAim>();
+        // Guardar colores originales
+        originalColors = new Color[graphics.Length];
+        for (int i = 0; i < graphics.Length; i++)
+            originalColors[i] = graphics[i].color;
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowAmmoUI(true);
+            UIManager.Instance.UpdateAmmoCount(currentAmmo, maxAmmo);
+        }
+    }
+
+    void OnEnable()
+    {
+        if (UIManager.Instance != null)
+            UIManager.Instance.ShowAmmoUI(true);
+    }
+
+    void OnDisable()
+    {
+        if (UIManager.Instance != null)
+            UIManager.Instance.ShowAmmoUI(false);
+        RestoreGraphicsColor();
     }
 
     void Update()
     {
         if (playerTransform == null) return;
-
         UpdateWeaponPositionAndRotation();
-
-        // Eliminado flip extra para evitar que se voltee en X al saltar.
-        // Los gráficos se mantendrán sin modificación, pues la rotación del arma es suficiente.
     }
 
-    /// <summary>
-    /// Actualiza la posición y rotación del arma.
-    /// Se calcula en el espacio local del jugador tomando la posición del ratón;
-    /// se establece un centro de movimiento (desplazado según circleCenterOffset, invertido al girar)
-    /// y se restringe el desplazamiento a un círculo de radio circleRadius.
-    /// La rotación se ajusta para que el arma apunte desde ese centro hasta su posición.
-    /// </summary>
-    void UpdateWeaponPositionAndRotation()
-    {
-        // 1. Obtener la posición del ratón en mundo y convertirla al espacio local del player.
-        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorld.z = 0f;
-        Vector3 localMousePos = playerTransform.InverseTransformPoint(mouseWorld);
-
-        // 2. Determinar el lado del jugador basado en PlayerAim.
-        float playerSide = (playerAim != null && playerAim.FacingRight) ? 1f : -1f;
-        // Ajustamos el centro según el lado.
-        Vector2 adjustedCenter = new Vector2(circleCenterOffset.x * playerSide, circleCenterOffset.y);
-
-        // 3. Calcular la posición deseada relativa al centro ajustado.
-        Vector2 relativePos = ((Vector2)localMousePos - adjustedCenter);
-
-        // 4. Limitar la magnitud al radio del círculo.
-        if (relativePos.magnitude > circleRadius)
-            relativePos = relativePos.normalized * circleRadius;
-
-        // 5. La posición final en el espacio local es el centro ajustado más el desplazamiento.
-        Vector2 candidatePos = adjustedCenter + relativePos;
-
-        // 6. Interpolar suavemente hasta la posición deseada.
-        Vector2 newLocalPos = Vector2.Lerp((Vector2)transform.localPosition, candidatePos, Time.deltaTime * aimLerpSpeed);
-        transform.localPosition = new Vector3(newLocalPos.x, newLocalPos.y, transform.localPosition.z);
-
-        // 7. Ajustar la rotación para que el arma apunte desde el centro hasta su posición.
-        Vector2 direction = newLocalPos - adjustedCenter;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.localRotation = Quaternion.Euler(0, 0, angle);
-    }
-
-    /// <summary>
-    /// Llamado desde PlayerAttack al disparar.
-    /// Gestiona la cadencia y recarga.
-    /// </summary>
     public void TriggerFire()
     {
         if (isReloading || Time.time < nextFireTime) return;
@@ -109,20 +92,15 @@ public class PistolBehaviour : MonoBehaviour
         else StartCoroutine(Reload());
     }
 
-    /// <summary>
-    /// Crea una bala en la posición de muzzlePoint.
-    /// </summary>
     void Shoot()
     {
         GameObject bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
-        Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-        if (rb != null)
+        if (bullet.TryGetComponent<Rigidbody2D>(out var rb))
         {
             Vector3 dir = muzzlePoint.TransformDirection(Vector3.up).normalized;
             rb.velocity = dir * bulletSpeed;
         }
-        Bullet bs = bullet.GetComponent<Bullet>();
-        if (bs != null)
+        if (bullet.TryGetComponent<Bullet>(out var bs))
         {
             bs.damage = bulletDamage;
             bs.lifetime = bulletLifetime;
@@ -130,6 +108,8 @@ public class PistolBehaviour : MonoBehaviour
 
         currentAmmo--;
         nextFireTime = Time.time + 1f / fireRate;
+        UIManager.Instance?.UpdateAmmoCount(currentAmmo, maxAmmo);
+
         if (currentAmmo <= 0)
             StartCoroutine(Reload());
     }
@@ -137,8 +117,44 @@ public class PistolBehaviour : MonoBehaviour
     IEnumerator Reload()
     {
         isReloading = true;
+        TintGraphics(reloadTintColor);
         yield return new WaitForSeconds(reloadTime);
         currentAmmo = maxAmmo;
         isReloading = false;
+        RestoreGraphicsColor();
+        UIManager.Instance?.UpdateAmmoCount(currentAmmo, maxAmmo);
+    }
+
+    void TintGraphics(Color tint)
+    {
+        foreach (var sr in graphics)
+            sr.color = tint;
+    }
+
+    void RestoreGraphicsColor()
+    {
+        for (int i = 0; i < graphics.Length; i++)
+            graphics[i].color = originalColors[i];
+    }
+
+    void UpdateWeaponPositionAndRotation()
+    {
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorld.z = 0f;
+        Vector3 localMouse = playerTransform.InverseTransformPoint(mouseWorld);
+
+        float side = (playerAim != null && playerAim.FacingRight) ? 1f : -1f;
+        Vector2 center = new Vector2(circleCenterOffset.x * side, circleCenterOffset.y);
+
+        Vector2 delta = (Vector2)localMouse - center;
+        if (delta.magnitude > circleRadius)
+            delta = delta.normalized * circleRadius;
+
+        Vector2 targetPos = center + delta;
+        Vector2 newPos = Vector2.Lerp(transform.localPosition, targetPos, Time.deltaTime * aimLerpSpeed);
+        transform.localPosition = new Vector3(newPos.x, newPos.y, transform.localPosition.z);
+
+        float angle = Mathf.Atan2(newPos.y - center.y, newPos.x - center.x) * Mathf.Rad2Deg;
+        transform.localRotation = Quaternion.Euler(0f, 0f, angle);
     }
 }

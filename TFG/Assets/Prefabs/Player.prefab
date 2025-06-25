@@ -102,7 +102,7 @@ Transform:
   - {fileID: 2080289025640570893}
   - {fileID: 7427257136720827875}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &462611679858591220
 SpriteRenderer:
@@ -247,6 +247,7 @@ MonoBehaviour:
   wallLayer:
     serializedVersion: 2
     m_Bits: 0
+  cooldownColor: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
 --- !u!114 &7121801249656343401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,11 +273,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 863fba321ecd09e449c05c311af9112a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapons:
+  allWeapons:
   - {fileID: 11400000, guid: f3f749410d079564189250144174e459, type: 2}
   - {fileID: 11400000, guid: 65e23af736afd7c47a02b83111692b96, type: 2}
   - {fileID: 11400000, guid: 763d736253b05294faa15bdd5d63784d, type: 2}
-  equippedWeapon: {fileID: 11400000, guid: f3f749410d079564189250144174e459, type: 2}
+  equippedWeapon: {fileID: 0}
 --- !u!114 &5880184243468299166
 MonoBehaviour:
   m_ObjectHideFlags: 0
