@@ -7235,7 +7235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inactiveColor: {r: 0.81960785, g: 0.22005849, b: 0.15294115, a: 1}
   activeColor: {r: 0.2627451, g: 0.8941177, b: 0.47058827, a: 1}
-  cameraTargetPosition: {x: 702, y: 30, z: 0}
+  cameraTargetPosition: {x: 772, y: 30, z: 0}
 --- !u!61 &875737855
 BoxCollider2D:
   m_ObjectHideFlags: 0
