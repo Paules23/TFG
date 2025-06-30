@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 880322894027327542}
   - component: {fileID: 5276612388705620402}
   - component: {fileID: 8628807650986270687}
+  - component: {fileID: 1690648791673340541}
   m_Layer: 11
   m_Name: Bull
   m_TagString: Untagged
@@ -33,7 +34,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &990340369324401204
 SpriteRenderer:
@@ -172,8 +173,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc171570a23390e4eb1a7b4244312a17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 6
-  detectionRange: 6.9
+  maxHealth: 5
+  detectionRange: 9.31
   verticalRange: 1.5
   preparationTime: 1
   chargeSpeed: 12
@@ -182,8 +183,8 @@ MonoBehaviour:
   minSlideSpeed: 1
   damageToPlayer: 2
   spearStunTime: 1
-  hitFlashColor: {r: 0, g: 0, b: 0, a: 0.4}
-  hitFlashDuration: 0.15
+  hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
+  hitFlashDuration: 0.02
   spriteRenderer: {fileID: 990340369324401204}
   idleColor: {r: 0, g: 1, b: 0, a: 1}
   preparingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -191,3 +192,18 @@ MonoBehaviour:
   coolingColor: {r: 0, g: 0, b: 1, a: 1}
   spearStunColor: {r: 0.027450966, g: 0.81960785, b: 0.7250515, a: 1}
   DeadBodyPrefab: {fileID: 6663644671455212833, guid: f0e9c0916ab9ce240935ebabd5ab19af, type: 3}
+--- !u!114 &1690648791673340541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5451013454493467025}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3739ef6e1c1bb12488e84193242e8037, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scaleMultiplier: 1.3
+  scaleUpDuration: 0.01
+  returnDuration: 0.01

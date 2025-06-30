@@ -43,6 +43,8 @@ public class FlyingShooter : MonoBehaviour, IDamageable
     private float attackTimer;
     private Vector3 randomTarget;
 
+    private HitScaleEffect hitEffect;
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -51,6 +53,8 @@ public class FlyingShooter : MonoBehaviour, IDamageable
             Debug.LogError("FlyingShooter: no se encontró ningún GameObject con tag 'Player'.");
 
         spriteRenderer = spriteRenderer ?? GetComponent<SpriteRenderer>();
+        hitEffect = GetComponent<HitScaleEffect>();
+
         UpdateColor();
     }
 
@@ -151,6 +155,7 @@ public class FlyingShooter : MonoBehaviour, IDamageable
         return Mathf.Abs(delta.x) <= closeRangeBoxSize.x * 0.5f
             && Mathf.Abs(delta.y) <= closeRangeBoxSize.y * 0.5f;
     }
+
     public void TakeDamage(float dmg)
     {
         if (state == FlyState.Idle)
@@ -161,9 +166,13 @@ public class FlyingShooter : MonoBehaviour, IDamageable
 
         currentHealth -= dmg;
         StartCoroutine(FlashHit());
+
+        // Activar efecto visual de impacto si existe
+        if (hitEffect != null)
+            hitEffect.PlayEffect();
+
         if (currentHealth <= 0f)
         {
-            //instancia enemigo muerto
             Instantiate(DeadBodyPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }

@@ -37,6 +37,9 @@ public class EnemySpawner : MonoBehaviour, IDamageable
     [Tooltip("Referencia al SpriteRenderer para mostrar el flash al recibir daño")]
     public SpriteRenderer spriteRenderer;
 
+    [Tooltip("Prefab del cuerpo del enemigo al morir")]
+    public GameObject DeadBodyPrefab;
+
     // Internos
     private float timer;
     private List<GameObject> spawnedEnemies = new List<GameObject>();
@@ -116,7 +119,11 @@ public class EnemySpawner : MonoBehaviour, IDamageable
         spawnerCurrentHealth -= dmg;
         StartCoroutine(FlashHit());
         if (spawnerCurrentHealth <= 0f)
+        {
+            //instancia enemigo muerto
+            Instantiate(DeadBodyPrefab, transform.position, Quaternion.identity);
             Die();
+        } 
     }
 
     IEnumerator FlashHit()

@@ -45,12 +45,15 @@ public class ChargingBull : MonoBehaviour, IDamageable
     private Collider2D col;
     private Rigidbody2D rb;
 
+    private HitScaleEffect hitEffect;
+
     void Awake()
     {
         health = maxHealth;
         col = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = spriteRenderer ?? GetComponent<SpriteRenderer>();
+        hitEffect = GetComponent<HitScaleEffect>();
 
         col.isTrigger = true;
         rb.bodyType = RigidbodyType2D.Kinematic;
@@ -160,6 +163,14 @@ public class ChargingBull : MonoBehaviour, IDamageable
 
         health -= dmg;
         StartCoroutine(HitFlash());
+
+        // Activar efecto visual de impacto si existe
+        if (hitEffect != null)
+        {
+            hitEffect.PlayEffect();
+            Debug.Log("sascalao");
+        }
+            
 
         if (health <= 0f)
         {

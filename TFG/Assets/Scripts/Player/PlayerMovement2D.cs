@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -30,7 +30,7 @@ public class PlayerMovement2D : MonoBehaviour
     [Tooltip("Color que adopta el jugador al hacer dash")]
     public Color cooldownColor = Color.gray;
 
-    private Color preDashColor;       // color que tenía justo antes del dash
+    private Color preDashColor;       // color que tenÃ­a justo antes del dash
     private SpriteRenderer spriteRenderer;
 
     private Rigidbody2D rb;
@@ -135,7 +135,7 @@ public class PlayerMovement2D : MonoBehaviour
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
 
-        // Guardamos el color actual (puede haber sido modificado por daño)
+        // Guardamos el color actual (puede haber sido modificado por daÃ±o)
         if (spriteRenderer != null)
             preDashColor = spriteRenderer.color;
 

@@ -109,6 +109,7 @@ MonoBehaviour:
   hitFlashColor: {r: 0, g: 0, b: 0, a: 0.4392157}
   hitFlashDuration: 0.15
   spriteRenderer: {fileID: 4703436787376292203}
+  DeadBodyPrefab: {fileID: 7377798791451302554, guid: eda32e4796d549e4c8312e678e91cd22, type: 3}
 --- !u!60 &-5414077078016568555
 PolygonCollider2D:
   m_ObjectHideFlags: 0
