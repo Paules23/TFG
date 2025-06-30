@@ -84,11 +84,6 @@ public class DestructibleObject : MonoBehaviour, IDamageable
 
     private IEnumerator ExplodeAfterFlash()
     {
-        // Trigger camera shake immediately before flash animation, si se necesita
-        if (CameraShake.Instance != null)
-        {
-            CameraShake.Instance.Shake();
-        }
 
         // Ejecutar la animación de flash
         yield return SmoothFlashEffect();

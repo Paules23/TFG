@@ -33,6 +33,9 @@ public class ChargingBull : MonoBehaviour, IDamageable
     public Color coolingColor = Color.blue;
     public Color spearStunColor = Color.magenta;
 
+    [Tooltip("Prefab del cuerpo del enemigo al morir")]
+    public GameObject DeadBodyPrefab;
+
     private BullState state;
     private float health;
     private float fixedY;
@@ -69,7 +72,6 @@ public class ChargingBull : MonoBehaviour, IDamageable
     {
         if (player == null) return;
 
-        // Mantener siempre misma Y
         transform.position = new Vector3(transform.position.x, fixedY, transform.position.z);
 
         switch (state)
@@ -77,7 +79,6 @@ public class ChargingBull : MonoBehaviour, IDamageable
             case BullState.Idle: TryDetect(); break;
             case BullState.Charging: DoCharge(); break;
             case BullState.Cooling: DoCooling(); break;
-                // Preparing y SpearStunned no hacen nada en Update
         }
     }
 
@@ -86,7 +87,6 @@ public class ChargingBull : MonoBehaviour, IDamageable
         float dx = Mathf.Abs(player.position.x - transform.position.x);
         float dy = Mathf.Abs(player.position.y - transform.position.y);
 
-        // Si el jugador está dentro del rectángulo dx ≤ detectionRange && dy ≤ verticalRange
         if (dx <= detectionRange && dy <= verticalRange)
         {
             state = BullState.Preparing;
@@ -160,8 +160,13 @@ public class ChargingBull : MonoBehaviour, IDamageable
 
         health -= dmg;
         StartCoroutine(HitFlash());
+
         if (health <= 0f)
+        {
+            //instancia enemigo muerto
+            Instantiate(DeadBodyPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
+        }
     }
 
     IEnumerator HitFlash()
@@ -193,7 +198,6 @@ public class ChargingBull : MonoBehaviour, IDamageable
 
     void OnDrawGizmosSelected()
     {
-        // Dibuja el rectángulo de detección
         Gizmos.color = Color.yellow;
         Vector3 size = new Vector3(detectionRange * 2f, verticalRange * 2f, 0f);
         Gizmos.DrawWireCube(transform.position, size);

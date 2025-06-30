@@ -7,12 +7,6 @@ public class CameraShake : MonoBehaviour
 {
     public static CameraShake Instance;
 
-    [Header("Shake Settings")]
-    [Tooltip("Duration of the shake in seconds")]
-    public float shakeDuration = 0.05f;
-    [Tooltip("Magnitude of the shake displacement")]
-    public float shakeMagnitude = 0.05f;
-
     private Coroutine shakeCoroutine;
     private Vector3 originalPos;
 
@@ -24,7 +18,7 @@ public class CameraShake : MonoBehaviour
     /// <summary>
     /// Inicia un shake con los parámetros del Inspector.
     /// </summary>
-    public void Shake()
+    public void Shake(float shakeDuration, float shakeMagnitude)
     {
         // Si ya está temblando, reiniciamos
         if (shakeCoroutine != null)

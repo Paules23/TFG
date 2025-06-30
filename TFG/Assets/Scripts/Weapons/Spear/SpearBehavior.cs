@@ -17,6 +17,11 @@ public class SpearBehaviour : MonoBehaviour
     public Vector2 hitboxSize = new Vector2(2f, 0.4f);
     public LayerMask hittableLayers;
 
+    [Header("Game Feel")]
+    public float timeStop;
+    public float ShakeDuration = 0.3f;
+    public float ShakeMagnitude = 0.2f;
+
     private bool isAttacking = false;
     private bool queuedAttack = false;
     private Vector2 attackDirection = Vector2.right;
@@ -116,9 +121,23 @@ public class SpearBehaviour : MonoBehaviour
                     damageable.TakeDamage(spearDamage);
                     alreadyHitTargets.Add(hit);
 
+                    // 💥 Congelar tiempo al golpear
+                    if (CameraShake.Instance != null)
+                    {
+                        CameraShake.Instance.Shake(ShakeDuration, ShakeMagnitude);
+                    }
+                    HitStopManager.Instance.FreezeFrame(timeStop);
+
                     // Si es un ChargingBull, aplicarle stun especial
                     var bull = hit.GetComponent<ChargingBull>();
                     if (bull != null)
+                    {
+                        Debug.Log("[SpearBehaviour] ChargingBull golpeado → aplicar stun.");
+                        bull.ApplySpearStun();
+                    }
+                
+
+                if (bull != null)
                     {
                         Debug.Log("[SpearBehaviour] ChargingBull golpeado → aplicar stun.");
                         bull.ApplySpearStun();

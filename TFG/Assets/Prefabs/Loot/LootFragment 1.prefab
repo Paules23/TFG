@@ -180,3 +180,6 @@ MonoBehaviour:
   acceleration: 10
   attractionRange: 3
   playerTag: Player
+  destroyYThreshold: -50
+  zoomAmount: 0.1
+  zoomDuration: 0.1

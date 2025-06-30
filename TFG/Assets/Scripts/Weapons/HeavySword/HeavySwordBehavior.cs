@@ -6,21 +6,29 @@ public class HeavySwordBehaviour : MonoBehaviour
 {
     public float attackDuration = 0.4f;
     public float heavyDamageAmount = 50f;
+
+
     public LayerMask hittableLayers;
 
     [Header("Rectangular Hitbox")]
     public Transform hitboxPoint;         // Centro de la zona de impacto
     public Vector2 hitboxSize = new Vector2(1f, 0.3f);
 
-    private bool isAttacking = false;
-    private Vector2 attackDirection = Vector2.right;
-    private HashSet<Collider2D> alreadyHitTargets = new HashSet<Collider2D>();
-    private Quaternion defaultRotation;
 
     [Header("Swing Acceleration and angle")]
     public AnimationCurve swingCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     public float startAngle;
     public float endAngle;
+
+    [Header("Game Feel")]
+    public float timeStop;
+    public float ShakeDuration = 0.3f;
+    public float ShakeMagnitude = 0.2f;
+
+    private bool isAttacking = false;
+    private Vector2 attackDirection = Vector2.right;
+    private HashSet<Collider2D> alreadyHitTargets = new HashSet<Collider2D>();
+    private Quaternion defaultRotation;
 
     void Start()
     {
@@ -84,6 +92,13 @@ public class HeavySwordBehaviour : MonoBehaviour
                 {
                     damageable.TakeDamage(heavyDamageAmount);
                     alreadyHitTargets.Add(hit);
+
+                    if (CameraShake.Instance != null)
+                    {
+                        CameraShake.Instance.Shake(ShakeDuration, ShakeMagnitude);
+                    }
+
+                    HitStopManager.Instance.FreezeFrame(timeStop);
                 }
             }
         }

@@ -15,6 +15,9 @@ public class OrbitingBall : MonoBehaviour, IDamageable
     [Header("Layers & Tags")]
     public string playerTag = "Player";
 
+    [Tooltip("Prefab del cuerpo del enemigo al morir")]
+    public GameObject DeadBodyPrefab;
+
     private float currentHealth;
     private SpriteRenderer spriteRenderer;
 
@@ -32,7 +35,11 @@ public class OrbitingBall : MonoBehaviour, IDamageable
             StartCoroutine(FlashDamage());
 
         if (currentHealth <= 0f)
+        {
+            //instancia enemigo muerto
+            Instantiate(DeadBodyPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
+        }           
     }
 
     private IEnumerator FlashDamage()

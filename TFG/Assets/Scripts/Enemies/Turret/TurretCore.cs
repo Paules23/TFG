@@ -7,6 +7,8 @@ public class TurretCore : MonoBehaviour, IDamageable
 {
     [Header("Core Stats")]
     public float coreHealth = 50f;
+    [Tooltip("Prefab del cuerpo del enemigo al morir")]
+    public GameObject DeadBodyPrefab;
 
     [System.Serializable]
     public class RingSettings
@@ -15,7 +17,7 @@ public class TurretCore : MonoBehaviour, IDamageable
         public GameObject ballPrefab;
         public int ballCount = 8;
         public float radius = 2f;
-        public float angularSpeed = 90f; // grados/segundo (+ horario, – antihorario)
+        public float angularSpeed = 90f;
     }
 
     [Header("Rings")]
@@ -27,7 +29,8 @@ public class TurretCore : MonoBehaviour, IDamageable
     public float flashDuration = 0.2f;
 
     private SpriteRenderer spriteRenderer;
-    private readonly List<Transform> ringPivots = new(); // pivotes que rota el núcleo
+    private readonly List<Transform> ringPivots = new();
+    private Coroutine flashCoroutine;
 
     void Awake()
     {
@@ -42,7 +45,6 @@ public class TurretCore : MonoBehaviour, IDamageable
 
     void Update()
     {
-        // Rotar cada anillo
         if (ringPivots.Count > 0)
         {
             RotateRing(ringPivots[0], innerRing.angularSpeed);
@@ -51,19 +53,15 @@ public class TurretCore : MonoBehaviour, IDamageable
         }
     }
 
-    /* ───────────────────────────────────────── helpers ───────────────────────────────────────── */
-
     void CreateRing(RingSettings cfg)
     {
         if (cfg.ballPrefab == null || cfg.ballCount <= 0) return;
 
-        // 1. Crear pivote vacío como hijo del núcleo (para rotarlo fácilmente).
         GameObject pivotGO = new GameObject(cfg.name + "_Pivot");
         pivotGO.transform.SetParent(transform);
         pivotGO.transform.localPosition = Vector3.zero;
         ringPivots.Add(pivotGO.transform);
 
-        // 2. Instanciar bolas alrededor del pivote.
         for (int i = 0; i < cfg.ballCount; i++)
         {
             float angle = i * Mathf.PI * 2f / cfg.ballCount;
@@ -77,8 +75,6 @@ public class TurretCore : MonoBehaviour, IDamageable
     void RotateRing(Transform pivot, float speedDegPerSec)
         => pivot.Rotate(Vector3.forward, speedDegPerSec * Time.deltaTime, Space.Self);
 
-    /* ────────────────────────────── IDamageable implementation ─────────────────────────────── */
-
     public void TakeDamage(float dmg)
     {
         coreHealth -= dmg;
@@ -87,14 +83,35 @@ public class TurretCore : MonoBehaviour, IDamageable
             StartCoroutine(FlashDamage());
 
         if (coreHealth <= 0f)
+        {
+            // Instancia cuerpo muerto del core
+            Instantiate(DeadBodyPrefab, transform.position, Quaternion.identity);
+
+            // Matar todas las bolas orbitantes correctamente
+            OrbitingBall[] orbitingBalls = GetComponentsInChildren<OrbitingBall>();
+            foreach (OrbitingBall ball in orbitingBalls)
+            {
+                ball.TakeDamage(ball.maxHealth); // Fuerza la muerte con feedback visual
+            }
+
             Destroy(gameObject);
+        }
     }
 
     private IEnumerator FlashDamage()
     {
+        if (flashCoroutine != null)
+            yield break; // ya se está ejecutando, no hacemos nada
+
+        flashCoroutine = StartCoroutine(DoFlashDamage());
+    }
+
+    private IEnumerator DoFlashDamage()
+    {
         Color originalColor = spriteRenderer.color;
         spriteRenderer.color = damageColor;
-        yield return new WaitForSeconds(flashDuration);
+        yield return new WaitForSecondsRealtime(flashDuration);
         spriteRenderer.color = originalColor;
+        flashCoroutine = null;
     }
 }

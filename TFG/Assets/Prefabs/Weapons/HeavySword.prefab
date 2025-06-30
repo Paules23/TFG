@@ -187,6 +187,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackDuration: 0.6
   heavyDamageAmount: 2
+  timeStop: 0.08
   hittableLayers:
     serializedVersion: 2
     m_Bits: 2688

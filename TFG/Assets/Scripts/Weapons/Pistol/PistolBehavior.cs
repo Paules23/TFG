@@ -21,12 +21,20 @@ public class PistolBehaviour : MonoBehaviour
     [Header("Ammo")]
     public int maxAmmo = 12;
     public float bulletDamage = 25f;
-    public float bulletLifetime = 3f;
 
     [Header("Visual")]
     public PlayerAim playerAim;
     [Tooltip("Color to tint all weapon sprites while reloading")]
-    public Color reloadTintColor = Color.red; 
+    public Color reloadTintColor = Color.red;
+
+    [Header("Shell Casing")]
+    public GameObject shellCasingPrefab;
+    public Transform casingEjectPoint;
+
+
+    [Header("Game feel")]
+    public float ShakeDuration = 0.15f;
+    public float ShakeMagnitude = 0.1f;
 
     // Estado interno
     private int currentAmmo;
@@ -94,6 +102,8 @@ public class PistolBehaviour : MonoBehaviour
 
     void Shoot()
     {
+        if (CameraShake.Instance != null)
+            CameraShake.Instance.Shake(ShakeDuration, ShakeMagnitude);
         GameObject bullet = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation);
         if (bullet.TryGetComponent<Rigidbody2D>(out var rb))
         {
@@ -103,8 +113,8 @@ public class PistolBehaviour : MonoBehaviour
         if (bullet.TryGetComponent<Bullet>(out var bs))
         {
             bs.damage = bulletDamage;
-            bs.lifetime = bulletLifetime;
         }
+        EjectShell();
 
         currentAmmo--;
         nextFireTime = Time.time + 1f / fireRate;
@@ -157,4 +167,14 @@ public class PistolBehaviour : MonoBehaviour
         float angle = Mathf.Atan2(newPos.y - center.y, newPos.x - center.x) * Mathf.Rad2Deg;
         transform.localRotation = Quaternion.Euler(0f, 0f, angle);
     }
+
+
+    void EjectShell()
+    {
+        GameObject casing = Instantiate(shellCasingPrefab, casingEjectPoint.position, Quaternion.identity);
+
+        // Opcional: rotar el casing para variar la salida
+        casing.transform.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
+    }
+
 }

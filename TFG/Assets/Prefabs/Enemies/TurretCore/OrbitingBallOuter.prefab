@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 17
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2425094832960304866
 SpriteRenderer:
@@ -139,3 +139,4 @@ MonoBehaviour:
   damageColor: {r: 0, g: 0, b: 0, a: 0.4}
   flashDuration: 0.15
   playerTag: Player
+  DeadBodyPrefab: {fileID: 8014767799226657954, guid: 172171143effa7a43810c27f0609085a, type: 3}

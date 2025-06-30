@@ -224,3 +224,6 @@ MonoBehaviour:
   hittableLayers:
     serializedVersion: 2
     m_Bits: 2688
+  timeStop: 0.1
+  ShakeDuration: 0.3
+  ShakeMagnitude: 0.2

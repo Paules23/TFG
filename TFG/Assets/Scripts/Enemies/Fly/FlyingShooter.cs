@@ -11,13 +11,13 @@ public class FlyingShooter : MonoBehaviour, IDamageable
     private float currentHealth;
 
     [Header("Ranges")]
-    public float detectionRange = 10f;               // Idle → Approaching
+    public float detectionRange = 10f;
     public Vector2 closeRangeBoxSize = new Vector2(4f, 4f);
     public Vector3 closeRangeBoxCenterOffset = new Vector3(0f, 1f, 0f);
 
     [Header("Movement")]
     public float moveSpeed = 4f;
-    public float moveInterval = 2f;                  // Cada X s elige nuevo destino
+    public float moveInterval = 2f;
 
     [Header("Attack")]
     public GameObject bulletPrefab;
@@ -34,7 +34,9 @@ public class FlyingShooter : MonoBehaviour, IDamageable
     public Color approachColor = Color.yellow;
     public Color attackColor = Color.red;
 
-    // estado interno
+    [Tooltip("Prefab del cuerpo del enemigo al morir")]
+    public GameObject DeadBodyPrefab;
+
     private FlyState state = FlyState.Idle;
     private Transform player;
     private float moveTimer;
@@ -108,8 +110,8 @@ public class FlyingShooter : MonoBehaviour, IDamageable
     void EnterAttacking()
     {
         state = FlyState.Attacking;
-        attackTimer = attackInterval;  // dispara de inmediato
-        moveTimer = moveInterval;    // cambia destino de inmediato
+        attackTimer = attackInterval;
+        moveTimer = moveInterval;
         ChooseNewRandomTarget();
         UpdateColor();
     }
@@ -133,7 +135,6 @@ public class FlyingShooter : MonoBehaviour, IDamageable
 
     void ChooseNewRandomTarget()
     {
-        // Caja centrada en player+offset
         Vector3 center = player.position + closeRangeBoxCenterOffset;
         float halfX = closeRangeBoxSize.x * 0.5f;
         float halfY = closeRangeBoxSize.y * 0.5f;
@@ -150,8 +151,6 @@ public class FlyingShooter : MonoBehaviour, IDamageable
         return Mathf.Abs(delta.x) <= closeRangeBoxSize.x * 0.5f
             && Mathf.Abs(delta.y) <= closeRangeBoxSize.y * 0.5f;
     }
-
-    // IDamageable
     public void TakeDamage(float dmg)
     {
         if (state == FlyState.Idle)
@@ -163,7 +162,11 @@ public class FlyingShooter : MonoBehaviour, IDamageable
         currentHealth -= dmg;
         StartCoroutine(FlashHit());
         if (currentHealth <= 0f)
+        {
+            //instancia enemigo muerto
+            Instantiate(DeadBodyPrefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
+        }
     }
 
     IEnumerator FlashHit()
@@ -188,11 +191,9 @@ public class FlyingShooter : MonoBehaviour, IDamageable
 
     void OnDrawGizmosSelected()
     {
-        // circular detectionRange
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // square closeRangeBox
         if (player != null)
         {
             Gizmos.color = Color.cyan;

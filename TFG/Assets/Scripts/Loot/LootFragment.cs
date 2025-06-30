@@ -3,12 +3,28 @@
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public class LootFragment : MonoBehaviour
 {
-    public float attractionSpeed = 3.5f;
-    public float acceleration = 10f;
-    public float attractionRange = 3f;
-    public string playerTag = "Player";
+    [Header("Attraction Settings")]
+    [Tooltip("Velocidad máxima a la que el loot se mueve hacia el jugador")]
+    [SerializeField] private float attractionSpeed = 3.5f;
 
-    public float destroyYThreshold = -50f; // 👈 Umbral de destrucción por caída
+    [Tooltip("Qué tan rápido acelera al moverse hacia el jugador")]
+    [SerializeField] private float acceleration = 10f;
+
+    [Tooltip("Distancia máxima a la que el loot comienza a ser atraído")]
+    [SerializeField] private float attractionRange = 3f;
+
+    [Tooltip("Tag del jugador que atraerá el loot")]
+    [SerializeField] private string playerTag = "Player";
+
+    [Header("Cleanup")]
+    [Tooltip("Y mínima antes de autodestruir el loot (por caída fuera del mapa)")]
+    [SerializeField] private float destroyYThreshold = -50f;
+
+    [Header("Game Feel")]
+    [Tooltip("Cantidad de zoom al recoger el loot")]
+    [SerializeField] private float zoomAmount = 0.4f;
+    [SerializeField] private float zoomDuration = 0.1f;
+
 
     private Transform player;
     private Rigidbody2D rb;
@@ -30,7 +46,6 @@ public class LootFragment : MonoBehaviour
 
     void Update()
     {
-        //  Destruye si cae fuera del mapa
         if (transform.position.y <= destroyYThreshold)
         {
             Destroy(gameObject);
@@ -69,6 +84,11 @@ public class LootFragment : MonoBehaviour
     {
         if (other.CompareTag(playerTag))
         {
+            if (CameraZoom.Instance != null)
+            {
+                CameraZoom.Instance.Zoom(zoomAmount, zoomDuration);
+            }
+
             Destroy(gameObject);
         }
     }
