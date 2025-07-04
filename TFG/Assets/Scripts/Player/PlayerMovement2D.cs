@@ -30,7 +30,11 @@ public class PlayerMovement2D : MonoBehaviour
     [Tooltip("Color que adopta el jugador al hacer dash")]
     public Color cooldownColor = Color.gray;
 
-    private Color preDashColor;       // color que tenía justo antes del dash
+    [Header("God Mode Settings")]
+    public float godModeSpeed = 10f;
+    private bool isGodMode = false;
+
+    private Color preDashColor;
     private SpriteRenderer spriteRenderer;
 
     private Rigidbody2D rb;
@@ -59,12 +63,21 @@ public class PlayerMovement2D : MonoBehaviour
 
     void Update()
     {
-        // Si hay cooldown activo, actualizamos el color
+        // Toggle God Mode antes de cualquier otro movimiento
+        ToggleGodMode();
+
+        // Si God Mode está activo, usar movimiento libre y salir
+        if (isGodMode)
+        {
+            GodModeMovement();
+            return;
+        }
+
+        // Actualizamos cooldown dash y color
         if (dashCooldownTimer > 0f)
         {
             dashCooldownTimer -= Time.deltaTime;
             float t = 1f - (dashCooldownTimer / dashCooldown);
-            // Interpolamos desde cooldownColor hacia preDashColor
             if (spriteRenderer != null)
                 spriteRenderer.color = Color.Lerp(cooldownColor, preDashColor, t);
         }
@@ -135,11 +148,8 @@ public class PlayerMovement2D : MonoBehaviour
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
 
-        // Guardamos el color actual (puede haber sido modificado por daño)
         if (spriteRenderer != null)
             preDashColor = spriteRenderer.color;
-
-        // Ponemos el color de cooldown
         if (spriteRenderer != null)
             spriteRenderer.color = cooldownColor;
 
@@ -160,6 +170,38 @@ public class PlayerMovement2D : MonoBehaviour
         isDashing = false;
         rb.gravityScale = originalGravityScale;
         rb.velocity = new Vector2(rb.velocity.x, 0f);
+    }
+
+    void ToggleGodMode()
+    {
+        if (Input.GetKeyDown(KeyCode.F4))
+        {
+            isGodMode = !isGodMode;
+
+            if (isGodMode)
+            {
+                col.enabled = false;
+                rb.gravityScale = 0f;
+                rb.velocity = Vector2.zero;
+            }
+            else
+            {
+                col.enabled = true;
+                rb.gravityScale = originalGravityScale;
+            }
+        }
+    }
+
+    void GodModeMovement()
+    {
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = 0f;
+
+        if (Input.GetKey(KeyCode.W)) vertical = 1f;
+        if (Input.GetKey(KeyCode.S)) vertical = -1f;
+
+        Vector2 direction = new Vector2(horizontal, vertical).normalized;
+        rb.velocity = direction * godModeSpeed;
     }
 
     void OnDrawGizmosSelected()

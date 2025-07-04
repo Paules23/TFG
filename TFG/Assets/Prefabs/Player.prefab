@@ -248,6 +248,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   cooldownColor: {r: 0.26415092, g: 0.26415092, b: 0.26415092, a: 1}
+  godModeSpeed: 30
 --- !u!114 &7121801249656343401
 MonoBehaviour:
   m_ObjectHideFlags: 0
