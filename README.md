@@ -7,3 +7,4 @@
 - Mouse: Aim
 - Left Click: Attack
 - f4:  God mode
+- 1,2,3: Change weapons
